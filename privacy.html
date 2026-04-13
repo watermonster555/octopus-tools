@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>隐私政策 - Octopus</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .policy-header {
+      text-align: center;
+      padding: 3rem 1.5rem 2rem;
+    }
+
+    .policy-header h1 {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+      background: linear-gradient(135deg, var(--accent), #00f5d4);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .policy-header .subtitle {
+      color: var(--text-secondary);
+      font-size: 1.1rem;
+    }
+
+    .policy-section {
+      margin-bottom: 2rem;
+    }
+
+    .policy-section:last-child {
+      margin-bottom: 0;
+    }
+
+    .section-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .policy-text {
+      color: var(--text-secondary);
+      line-height: 1.8;
+      margin-bottom: 1rem;
+    }
+
+    .policy-text:last-child {
+      margin-bottom: 0;
+    }
+
+    .highlight-box {
+      background: rgba(0, 212, 170, 0.1);
+      border: 1px solid var(--accent);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin: 1.5rem 0;
+    }
+
+    .highlight-title {
+      font-weight: 600;
+      color: var(--accent);
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .highlight-text {
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    .feature-list {
+      list-style: none;
+      padding: 0;
+    }
+
+    .feature-list li {
+      padding: 0.75rem 0;
+      padding-left: 1.5rem;
+      position: relative;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    .feature-list li::before {
+      content: '✓';
+      position: absolute;
+      left: 0;
+      color: var(--accent);
+      font-weight: bold;
+    }
+
+    .update-date {
+      text-align: center;
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      margin-top: 2rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .contact-box {
+      background: var(--bg-secondary);
+      border-radius: 12px;
+      padding: 1.5rem;
+      text-align: center;
+      margin-top: 2rem;
+    }
+
+    .contact-text {
+      color: var(--text-secondary);
+      margin-bottom: 1rem;
+    }
+
+    .contact-link {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .contact-link:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <!-- 导航栏 -->
+  <nav>
+    <div class="nav-container">
+      <a href="index.html" class="logo">🐙 Octopus</a>
+      <div class="nav-links">
+        <a href="index.html">首页</a>
+        <a href="about.html">关于</a>
+        <a href="tools/qr-generator.html">工具</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- 主体 -->
+  <main class="tool-container">
+    <!-- 标题 -->
+    <div class="policy-header">
+      <h1>隐私政策</h1>
+      <p class="subtitle">我们高度重视您的隐私保护</p>
+    </div>
+
+    <!-- 核心承诺 -->
+    <div class="highlight-box">
+      <div class="highlight-title">🔒 核心承诺</div>
+      <div class="highlight-text">
+        Octopus 所有工具均采用<strong>纯前端技术</strong>实现，您的数据仅在浏览器本地处理，
+        <strong>不会上传到任何服务器</strong>。我们承诺不收集、不存储、不分享您的任何个人信息和使用数据。
+      </div>
+    </div>
+
+    <div class="card">
+      <!-- 数据收集 -->
+      <div class="policy-section">
+        <h2 class="section-title">📋 我们收集的信息</h2>
+        <p class="policy-text">
+          <strong>我们不收集任何信息。</strong>
+        </p>
+        <p class="policy-text">
+          当您使用 Octopus 的任何工具时，所有操作都在您的浏览器本地完成：
+        </p>
+        <ul class="feature-list">
+          <li>您上传的图片仅在浏览器中进行压缩处理，不会上传到服务器</li>
+          <li>您输入的文本仅在浏览器中进行转换，不会被记录或传输</li>
+          <li>您生成的密码完全在本地生成，我们不会保存任何副本</li>
+          <li>您粘贴的 JSON 数据仅在本地格式化，不会离开您的设备</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card">
+      <!-- 数据存储 -->
+      <div class="policy-section">
+        <h2 class="section-title">💾 数据存储</h2>
+        <p class="policy-text">
+          <strong>我们不存储任何数据。</strong>
+        </p>
+        <p class="policy-text">
+          Octopus 不会使用 Cookie、LocalStorage 或其他任何方式在您的设备上存储数据。
+          每次刷新页面后，所有临时数据都会被清除。
+        </p>
+        <p class="policy-text">
+          唯一的例外是密码生成器的历史记录功能，但这仅在您<strong>主动关闭隐私模式</strong>时才会启用，
+          且数据仅保存在当前页面内存中，关闭页面后立即清除。
+        </p>
+      </div>
+    </div>
+
+    <div class="card">
+      <!-- 第三方服务 -->
+      <div class="policy-section">
+        <h2 class="section-title">🔗 第三方服务</h2>
+        <p class="policy-text">
+          Octopus 使用以下第三方服务：
+        </p>
+        <ul class="feature-list">
+          <li><strong>GitHub Pages</strong> - 用于网站托管，仅提供静态文件服务</li>
+          <li><strong>CDN</strong> - 用于加载部分开源 JavaScript 库（如二维码生成库）</li>
+        </ul>
+        <p class="policy-text">
+          这些服务仅提供网站托管和静态资源加载，不会接触到您在使用工具时处理的任何数据。
+        </p>
+      </div>
+    </div>
+
+    <div class="card">
+      <!-- 安全建议 -->
+      <div class="policy-section">
+        <h2 class="section-title">🛡️ 安全建议</h2>
+        <p class="policy-text">
+          虽然 Octopus 本身不收集任何数据，但我们仍建议您：
+        </p>
+        <ul class="feature-list">
+          <li>使用密码生成器时，建议开启隐私模式，生成的密码不会显示在历史记录中</li>
+          <li>处理敏感图片时，可以放心使用，图片数据不会离开您的设备</li>
+          <li>定期更新浏览器，确保获得最新的安全保护</li>
+          <li>在公共设备上使用后，建议关闭浏览器标签页</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card">
+      <!-- 政策更新 -->
+      <div class="policy-section">
+        <h2 class="section-title">📝 政策更新</h2>
+        <p class="policy-text">
+          我们可能会不时更新本隐私政策。任何更改都会在本页面发布，并更新"最后更新日期"。
+          建议您定期查看本页面，了解我们如何保护您的信息。
+        </p>
+      </div>
+
+      <!-- 联系我们 -->
+      <div class="contact-box">
+        <p class="contact-text">
+          如果您对本隐私政策有任何疑问或建议，欢迎通过 GitHub 与我们联系。
+        </p>
+        <a href="https://github.com/watermonster555/octopus-tools" class="contact-link" target="_blank">
+          GitHub: watermonster555/octopus-tools
+        </a>
+      </div>
+    </div>
+
+    <!-- 更新日期 -->
+    <div class="update-date">
+      最后更新日期：2026年4月13日
+    </div>
+  </main>
+
+  <!-- 页脚 -->
+  <footer>
+    <p>🐙 Octopus | 一个大脑，多条触手</p>
+    <div style="margin: 0.5rem 0;">
+      <a href="about.html" style="color: var(--text-secondary); text-decoration: none; margin: 0 0.5rem; font-size: 0.8rem;">关于我们</a>
+      <a href="privacy.html" style="color: var(--accent); text-decoration: none; margin: 0 0.5rem; font-size: 0.8rem;">隐私政策</a>
+      <a href="terms.html" style="color: var(--text-secondary); text-decoration: none; margin: 0 0.5rem; font-size: 0.8rem;">用户协议</a>
+    </div>
+    <p style="font-size: 0.75rem; color: var(--text-secondary); opacity: 0.7;">© 2026 Octopus</p>
+  </footer>
+
+  <!-- 提示 -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+    function showToast(message, type = 'success') {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      if (type === 'error') {
+        toast.style.background = '#e74c3c';
+        toast.style.color = '#fff';
+      } else {
+        toast.style.background = 'var(--accent)';
+        toast.style.color = '#000';
+      }
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2000);
+    }
+  </script>
+</body>
+</html>
