@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JSON 格式化 - Octopus</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .json-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    @media (max-width: 768px) {
+      .json-container {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .json-panel {
+      background: var(--bg-secondary);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem 1rem;
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .panel-title {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+
+    .panel-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .panel-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      padding: 0.25rem 0.75rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .panel-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .json-textarea {
+      width: 100%;
+      min-height: 400px;
+      padding: 1rem;
+      background: transparent;
+      border: none;
+      color: var(--text-primary);
+      font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+      font-size: 0.875rem;
+      line-height: 1.6;
+      resize: vertical;
+      outline: none;
+    }
+
+    .json-output {
+      width: 100%;
+      min-height: 400px;
+      max-height: 600px;
+      padding: 1rem;
+      overflow: auto;
+      font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+      font-size: 0.875rem;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+
+    /* JSON 语法高亮 */
+    .json-key {
+      color: #9cdcfe;
+    }
+
+    .json-string {
+      color: #ce9178;
+    }
+
+    .json-number {
+      color: #b5cea8;
+    }
+
+    .json-boolean {
+      color: #569cd6;
+    }
+
+    .json-null {
+      color: #569cd6;
+    }
+
+    .json-bracket {
+      color: #ffd700;
+    }
+
+    /* 行号 */
+    .json-output.with-lines {
+      counter-reset: line;
+      padding-left: 3rem;
+    }
+
+    .json-output.with-lines .line {
+      position: relative;
+    }
+
+    .json-output.with-lines .line::before {
+      counter-increment: line;
+      content: counter(line);
+      position: absolute;
+      left: -2.5rem;
+      width: 2rem;
+      text-align: right;
+      color: var(--text-secondary);
+      opacity: 0.5;
+      font-size: 0.75rem;
+    }
+
+    .error-message {
+      background: rgba(231, 76, 60, 0.1);
+      border: 1px solid #e74c3c;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-top: 1rem;
+      color: #e74c3c;
+      font-family: monospace;
+      font-size: 0.875rem;
+    }
+
+    .success-message {
+      background: rgba(0, 212, 170, 0.1);
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      padding: 1rem;
+      margin-top: 1rem;
+      color: var(--accent);
+      font-size: 0.875rem;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      margin-bottom: 1.5rem;
+      padding: 1rem;
+      background: var(--bg-secondary);
+      border-radius: 12px;
+    }
+
+    .toolbar-group {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    .toolbar-separator {
+      width: 1px;
+      height: 24px;
+      background: var(--border);
+      margin: 0 0.5rem;
+    }
+
+    .sample-json {
+      margin-top: 1rem;
+      padding: 1rem;
+      background: var(--bg-secondary);
+      border-radius: 8px;
+      font-size: 0.875rem;
+    }
+
+    .sample-json summary {
+      cursor: pointer;
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .sample-content {
+      margin-top: 0.75rem;
+      padding: 0.75rem;
+      background: var(--bg-primary);
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .sample-content:hover {
+      color: var(--text-primary);
+      background: var(--bg-card);
+    }
+  </style>
+</head>
+<body>
+  <!-- 导航栏 -->
+  <nav>
+    <div class="nav-container">
+      <a href="../index.html" class="logo">🐙 Octopus</a>
+      <div class="nav-links">
+        <a href="qr-generator.html">二维码</a>
+        <a href="password-gen.html">密码生成</a>
+        <a href="json-formatter.html">JSON</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- 主体 -->
+  <main class="tool-container">
+    <div class="tool-header">
+      <h1>JSON 格式化</h1>
+      <p>JSON 美化、压缩、验证，支持语法高亮</p>
+    </div>
+
+    <div class="card">
+      <!-- 工具栏 -->
+      <div class="toolbar">
+        <div class="toolbar-group">
+          <button class="btn" onclick="formatJSON()">格式化</button>
+          <button class="btn btn-secondary" onclick="compressJSON()">压缩</button>
+        </div>
+        <div class="toolbar-separator"></div>
+        <div class="toolbar-group">
+          <button class="btn btn-secondary" onclick="copyOutput()">复制结果</button>
+          <button class="btn btn-secondary" onclick="clearAll()">清空</button>
+        </div>
+        <div class="toolbar-separator"></div>
+        <div class="toolbar-group">
+          <button class="btn btn-secondary" onclick="loadSample()">加载示例</button>
+        </div>
+      </div>
+
+      <!-- JSON 输入输出区 -->
+      <div class="json-container">
+        <!-- 输入区 -->
+        <div class="json-panel">
+          <div class="panel-header">
+            <span class="panel-title">输入 JSON</span>
+            <div class="panel-actions">
+              <button class="panel-btn" onclick="pasteInput()">粘贴</button>
+            </div>
+          </div>
+          <textarea class="json-textarea" id="json-input" placeholder="在此粘贴 JSON 数据...
+
+例如：
+{
+  &quot;name&quot;: &quot;Octopus&quot;,
+  &quot;tools&quot;: 10,
+  &quot;free&quot;: true
+}"></textarea>
+        </div>
+
+        <!-- 输出区 -->
+        <div class="json-panel">
+          <div class="panel-header">
+            <span class="panel-title">格式化结果</span>
+            <div class="panel-actions">
+              <button class="panel-btn" onclick="toggleLineNumbers()">行号</button>
+              <button class="panel-btn" onclick="copyOutput()">复制</button>
+            </div>
+          </div>
+          <div class="json-output" id="json-output">
+            <span style="color: var(--text-secondary);">格式化后的 JSON 将显示在这里</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 消息区 -->
+      <div id="message-area"></div>
+
+      <!-- 示例数据 -->
+      <details class="sample-json">
+        <summary>点击展开示例 JSON（点击内容即可使用）</summary>
+        <div class="sample-content" onclick="useSample(this)">
+{"name": "Octopus","version": "1.0","description": "一个核心大脑，统筹无数灵活触手","features": ["二维码生成", "密码生成", "JSON格式化"],"stats": {"tools": 10,"free": true,"privacy": "100%"},"author": {"name": "watermonster555","github": "https://github.com/watermonster555"}}
+        </div>
+        <div class="sample-content" onclick="useSample(this)">
+{
+  "users": [
+    {"id": 1, "name": "Alice", "email": "alice@example.com", "active": true},
+    {"id": 2, "name": "Bob", "email": "bob@example.com", "active": false}
+  ],
+  "total": 2,
+  "page": 1,
+  "pageSize": 10
+}
+        </div>
+      </details>
+    </div>
+  </main>
+
+  <!-- 页脚 -->
+  <footer>
+    <p>🐙 Octopus | 一个大脑，多条触手</p>
+  </footer>
+
+  <!-- 提示 -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+    let showLineNumbers = false;
+
+    // 格式化 JSON
+    function formatJSON() {
+      const input = document.getElementById('json-input').value.trim();
+      if (!input) {
+        showMessage('请输入 JSON 数据', 'error');
+        return;
+      }
+
+      try {
+        const parsed = JSON.parse(input);
+        const formatted = JSON.stringify(parsed, null, 2);
+        displayOutput(formatted);
+        showMessage('✅ JSON 格式化成功', 'success');
+        showToast('格式化成功！');
+      } catch (e) {
+        showMessage('❌ JSON 格式错误: ' + e.message, 'error');
+        showToast('JSON 格式有误', 'error');
+      }
+    }
+
+    // 压缩 JSON
+    function compressJSON() {
+      const input = document.getElementById('json-input').value.trim();
+      if (!input) {
+        showMessage('请输入 JSON 数据', 'error');
+        return;
+      }
+
+      try {
+        const parsed = JSON.parse(input);
+        const compressed = JSON.stringify(parsed);
+        displayOutput(compressed);
+        showMessage('✅ JSON 压缩成功', 'success');
+        showToast('压缩成功！');
+      } catch (e) {
+        showMessage('❌ JSON 格式错误: ' + e.message, 'error');
+        showToast('JSON 格式有误', 'error');
+      }
+    }
+
+    // 显示输出（带语法高亮）
+    function displayOutput(json) {
+      const output = document.getElementById('json-output');
+      const highlighted = syntaxHighlight(json);
+      
+      if (showLineNumbers) {
+        const lines = highlighted.split('\n');
+        output.innerHTML = '<div class="line">' + lines.join('</div><div class="line">') + '</div>';
+        output.classList.add('with-lines');
+      } else {
+        output.innerHTML = highlighted;
+        output.classList.remove('with-lines');
+      }
+    }
+
+    // 语法高亮
+    function syntaxHighlight(json) {
+      return json
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/(".*?"):/g, '<span class="json-key">$1</span>:')
+        .replace(/: "(.*?)"/g, ': <span class="json-string">"$1"</span>')
+        .replace(/: (\d+\.?\d*)/g, ': <span class="json-number">$1</span>')
+        .replace(/: (true|false)/g, ': <span class="json-boolean">$1</span>')
+        .replace(/: (null)/g, ': <span class="json-null">$1</span>')
+        .replace(/([{}[\]])/g, '<span class="json-bracket">$1</span>');
+    }
+
+    // 切换行号
+    function toggleLineNumbers() {
+      showLineNumbers = !showLineNumbers;
+      const output = document.getElementById('json-output');
+      const currentContent = output.textContent;
+      
+      if (currentContent && currentContent !== '格式化后的 JSON 将显示在这里') {
+        // 重新渲染当前内容
+        const temp = document.createElement('div');
+        temp.innerHTML = currentContent;
+        const plainText = temp.textContent;
+        displayOutput(plainText);
+      }
+      
+      showToast(showLineNumbers ? '已显示行号' : '已隐藏行号');
+    }
+
+    // 复制输出
+    function copyOutput() {
+      const output = document.getElementById('json-output');
+      const text = output.textContent;
+      
+      if (!text || text === '格式化后的 JSON 将显示在这里') {
+        showToast('没有可复制的内容', 'error');
+        return;
+      }
+
+      navigator.clipboard.writeText(text).then(() => {
+        showToast('已复制到剪贴板！');
+      }).catch(() => {
+        showToast('复制失败', 'error');
+      });
+    }
+
+    // 粘贴输入
+    async function pasteInput() {
+      try {
+        const text = await navigator.clipboard.readText();
+        document.getElementById('json-input').value = text;
+        showToast('已粘贴');
+      } catch (e) {
+        showToast('无法读取剪贴板', 'error');
+      }
+    }
+
+    // 清空
+    function clearAll() {
+      document.getElementById('json-input').value = '';
+      document.getElementById('json-output').innerHTML = '<span style="color: var(--text-secondary);">格式化后的 JSON 将显示在这里</span>';
+      document.getElementById('message-area').innerHTML = '';
+      showToast('已清空');
+    }
+
+    // 加载示例
+    function loadSample() {
+      const sample = {
+        "name": "Octopus",
+        "version": "1.0",
+        "description": "一个核心大脑，统筹无数灵活触手",
+        "features": ["二维码生成", "密码生成", "JSON格式化"],
+        "stats": {
+          "tools": 10,
+          "free": true,
+          "privacy": "100%"
+        }
+      };
+      document.getElementById('json-input').value = JSON.stringify(sample);
+      formatJSON();
+      showToast('已加载示例');
+    }
+
+    // 使用示例
+    function useSample(element) {
+      document.getElementById('json-input').value = element.textContent.trim();
+      formatJSON();
+      showToast('已使用该示例');
+    }
+
+    // 显示消息
+    function showMessage(message, type) {
+      const area = document.getElementById('message-area');
+      const div = document.createElement('div');
+      div.className = type === 'error' ? 'error-message' : 'success-message';
+      div.textContent = message;
+      area.innerHTML = '';
+      area.appendChild(div);
+    }
+
+    // 显示提示
+    function showToast(message, type = 'success') {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      if (type === 'error') {
+        toast.style.background = '#e74c3c';
+        toast.style.color = '#fff';
+      } else {
+        toast.style.background = 'var(--accent)';
+        toast.style.color = '#000';
+      }
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2000);
+    }
+
+    // 实时格式化（输入时自动格式化）
+    let debounceTimer;
+    document.getElementById('json-input').addEventListener('input', function() {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        const input = this.value.trim();
+        if (input) {
+          try {
+            JSON.parse(input);
+            formatJSON();
+          } catch (e) {
+            // 不自动显示错误，等用户点击格式化按钮
+          }
+        }
+      }, 1000);
+    });
+  </script>
+</body>
+</html>
