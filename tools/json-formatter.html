@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>JSON 格式化 - Octopus</title>
+  <title>JSON 格式�?- Octopus</title>
   <link rel="stylesheet" href="../css/style.css">
   <style>
     .json-container {
@@ -213,12 +213,12 @@
   </style>
 </head>
 <body>
-  <!-- 导航栏 -->
+  <!-- 导航�?-->
   <nav>
     <div class="nav-container">
       <a href="../index.html" class="logo">🐙 Octopus</a>
       <div class="nav-links">
-        <a href="qr-generator.html">二维码</a>
+        <a href="qr-generator.html">二维�?/a>
         <a href="password-gen.html">密码生成</a>
         <a href="json-formatter.html">JSON</a>
       </div>
@@ -228,15 +228,15 @@
   <!-- 主体 -->
   <main class="tool-container">
     <div class="tool-header">
-      <h1>JSON 格式化</h1>
+      <h1>JSON 格式�?/h1>
       <p>JSON 美化、压缩、验证，支持语法高亮</p>
     </div>
 
     <div class="card">
-      <!-- 工具栏 -->
+      <!-- 工具�?-->
       <div class="toolbar">
         <div class="toolbar-group">
-          <button class="btn" onclick="formatJSON()">格式化</button>
+          <button class="btn" onclick="formatJSON()">格式�?/button>
           <button class="btn btn-secondary" onclick="compressJSON()">压缩</button>
         </div>
         <div class="toolbar-separator"></div>
@@ -250,9 +250,9 @@
         </div>
       </div>
 
-      <!-- JSON 输入输出区 -->
+      <!-- JSON 输入输出�?-->
       <div class="json-container">
-        <!-- 输入区 -->
+        <!-- 输入�?-->
         <div class="json-panel">
           <div class="panel-header">
             <span class="panel-title">输入 JSON</span>
@@ -262,37 +262,36 @@
           </div>
           <textarea class="json-textarea" id="json-input" placeholder="在此粘贴 JSON 数据...
 
-例如：
-{
+例如�?{
   &quot;name&quot;: &quot;Octopus&quot;,
   &quot;tools&quot;: 10,
   &quot;free&quot;: true
 }"></textarea>
         </div>
 
-        <!-- 输出区 -->
+        <!-- 输出�?-->
         <div class="json-panel">
           <div class="panel-header">
-            <span class="panel-title">格式化结果</span>
+            <span class="panel-title">格式化结�?/span>
             <div class="panel-actions">
               <button class="panel-btn" onclick="toggleLineNumbers()">行号</button>
               <button class="panel-btn" onclick="copyOutput()">复制</button>
             </div>
           </div>
           <div class="json-output" id="json-output">
-            <span style="color: var(--text-secondary);">格式化后的 JSON 将显示在这里</span>
+            <span style="color: var(--text-secondary);">格式化后�?JSON 将显示在这里</span>
           </div>
         </div>
       </div>
 
-      <!-- 消息区 -->
+      <!-- 消息�?-->
       <div id="message-area"></div>
 
       <!-- 示例数据 -->
       <details class="sample-json">
         <summary>点击展开示例 JSON（点击内容即可使用）</summary>
         <div class="sample-content" onclick="useSample(this)">
-{"name": "Octopus","version": "1.0","description": "一个核心大脑，统筹无数灵活触手","features": ["二维码生成", "密码生成", "JSON格式化"],"stats": {"tools": 10,"free": true,"privacy": "100%"},"author": {"name": "watermonster555","github": "https://github.com/watermonster555"}}
+{"name": "Octopus","version": "1.0","description": "一个核心大脑，统筹无数灵活触手","features": ["二维码生�?, "密码生成", "JSON格式�?],"stats": {"tools": 10,"free": true,"privacy": "100%"},"author": {"name": "watermonster555","github": "https://github.com/watermonster555"}}
         </div>
         <div class="sample-content" onclick="useSample(this)">
 {
@@ -312,6 +311,12 @@
   <!-- 页脚 -->
   <footer>
     <p>🐙 Octopus | 一个大脑，多条触手</p>
+    <div style="margin: 0.5rem 0;">
+      <a href="../index.html#about" style="color: var(--text-secondary); text-decoration: none; margin: 0 0.5rem; font-size: 0.8rem;">关于我们</a>
+      <a href="../index.html#privacy" style="color: var(--text-secondary); text-decoration: none; margin: 0 0.5rem; font-size: 0.8rem;">隐私政策</a>
+      <a href="../index.html#terms" style="color: var(--text-secondary); text-decoration: none; margin: 0 0.5rem; font-size: 0.8rem;">用户协议</a>
+    </div>
+    <p style="font-size: 0.75rem; color: var(--text-secondary); opacity: 0.7;">© 2025 Octopus</p>
   </footer>
 
   <!-- 提示 -->
@@ -320,11 +325,11 @@
   <script>
     let showLineNumbers = false;
 
-    // 格式化 JSON
+    // 格式�?JSON
     function formatJSON() {
       const input = document.getElementById('json-input').value.trim();
       if (!input) {
-        showMessage('请输入 JSON 数据', 'error');
+        showMessage('请输�?JSON 数据', 'error');
         return;
       }
 
@@ -332,10 +337,10 @@
         const parsed = JSON.parse(input);
         const formatted = JSON.stringify(parsed, null, 2);
         displayOutput(formatted);
-        showMessage('✅ JSON 格式化成功', 'success');
+        showMessage('�?JSON 格式化成�?, 'success');
         showToast('格式化成功！');
       } catch (e) {
-        showMessage('❌ JSON 格式错误: ' + e.message, 'error');
+        showMessage('�?JSON 格式错误: ' + e.message, 'error');
         showToast('JSON 格式有误', 'error');
       }
     }
@@ -344,7 +349,7 @@
     function compressJSON() {
       const input = document.getElementById('json-input').value.trim();
       if (!input) {
-        showMessage('请输入 JSON 数据', 'error');
+        showMessage('请输�?JSON 数据', 'error');
         return;
       }
 
@@ -352,16 +357,15 @@
         const parsed = JSON.parse(input);
         const compressed = JSON.stringify(parsed);
         displayOutput(compressed);
-        showMessage('✅ JSON 压缩成功', 'success');
-        showToast('压缩成功！');
+        showMessage('�?JSON 压缩成功', 'success');
+        showToast('压缩成功�?);
       } catch (e) {
-        showMessage('❌ JSON 格式错误: ' + e.message, 'error');
+        showMessage('�?JSON 格式错误: ' + e.message, 'error');
         showToast('JSON 格式有误', 'error');
       }
     }
 
-    // 显示输出（带语法高亮）
-    function displayOutput(json) {
+    // 显示输出（带语法高亮�?    function displayOutput(json) {
       const output = document.getElementById('json-output');
       const highlighted = syntaxHighlight(json);
       
@@ -395,7 +399,7 @@
       const output = document.getElementById('json-output');
       const currentContent = output.textContent;
       
-      if (currentContent && currentContent !== '格式化后的 JSON 将显示在这里') {
+      if (currentContent && currentContent !== '格式化后�?JSON 将显示在这里') {
         // 重新渲染当前内容
         const temp = document.createElement('div');
         temp.innerHTML = currentContent;
@@ -403,7 +407,7 @@
         displayOutput(plainText);
       }
       
-      showToast(showLineNumbers ? '已显示行号' : '已隐藏行号');
+      showToast(showLineNumbers ? '已显示行�? : '已隐藏行�?);
     }
 
     // 复制输出
@@ -411,7 +415,7 @@
       const output = document.getElementById('json-output');
       const text = output.textContent;
       
-      if (!text || text === '格式化后的 JSON 将显示在这里') {
+      if (!text || text === '格式化后�?JSON 将显示在这里') {
         showToast('没有可复制的内容', 'error');
         return;
       }
@@ -428,18 +432,18 @@
       try {
         const text = await navigator.clipboard.readText();
         document.getElementById('json-input').value = text;
-        showToast('已粘贴');
+        showToast('已粘�?);
       } catch (e) {
-        showToast('无法读取剪贴板', 'error');
+        showToast('无法读取剪贴�?, 'error');
       }
     }
 
     // 清空
     function clearAll() {
       document.getElementById('json-input').value = '';
-      document.getElementById('json-output').innerHTML = '<span style="color: var(--text-secondary);">格式化后的 JSON 将显示在这里</span>';
+      document.getElementById('json-output').innerHTML = '<span style="color: var(--text-secondary);">格式化后�?JSON 将显示在这里</span>';
       document.getElementById('message-area').innerHTML = '';
-      showToast('已清空');
+      showToast('已清�?);
     }
 
     // 加载示例
@@ -448,7 +452,7 @@
         "name": "Octopus",
         "version": "1.0",
         "description": "一个核心大脑，统筹无数灵活触手",
-        "features": ["二维码生成", "密码生成", "JSON格式化"],
+        "features": ["二维码生�?, "密码生成", "JSON格式�?],
         "stats": {
           "tools": 10,
           "free": true,
@@ -457,7 +461,7 @@
       };
       document.getElementById('json-input').value = JSON.stringify(sample);
       formatJSON();
-      showToast('已加载示例');
+      showToast('已加载示�?);
     }
 
     // 使用示例
@@ -494,8 +498,7 @@
       }, 2000);
     }
 
-    // 实时格式化（输入时自动格式化）
-    let debounceTimer;
+    // 实时格式化（输入时自动格式化�?    let debounceTimer;
     document.getElementById('json-input').addEventListener('input', function() {
       clearTimeout(debounceTimer);
       debounceTimer = setTimeout(() => {

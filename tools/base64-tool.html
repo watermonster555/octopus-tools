@@ -297,12 +297,12 @@
   </style>
 </head>
 <body>
-  <!-- 导航栏 -->
+  <!-- 导航�?-->
   <nav>
     <div class="nav-container">
       <a href="../index.html" class="logo">🐙 Octopus</a>
       <div class="nav-links">
-        <a href="qr-generator.html">二维码</a>
+        <a href="qr-generator.html">二维�?/a>
         <a href="password-gen.html">密码生成</a>
         <a href="json-formatter.html">JSON</a>
       </div>
@@ -313,7 +313,7 @@
   <main class="tool-container">
     <div class="tool-header">
       <h1>Base64 工具</h1>
-      <p>文字和图片的 Base64 编码解码，支持文件上传转换</p>
+      <p>文字和图片的 Base64 编码解码，支持文件上传转�?/p>
     </div>
 
     <div class="card">
@@ -321,7 +321,7 @@
       <div class="tab-container">
         <div class="tab-buttons">
           <button class="tab-btn active" onclick="switchTab('text')">🔤 文字编码</button>
-          <button class="tab-btn" onclick="switchTab('image')">🖼️ 图片转换</button>
+          <button class="tab-btn" onclick="switchTab('image')">🖼�?图片转换</button>
         </div>
 
         <!-- 文字编码 -->
@@ -336,15 +336,15 @@
                   <button class="io-btn" onclick="clearText()">清空</button>
                 </div>
               </div>
-              <textarea class="io-textarea" id="text-input" placeholder="在此输入要编码或解码的文字..."></textarea>
+              <textarea class="io-textarea" id="text-input" placeholder="在此输入要编码或解码的文�?.."></textarea>
               <div class="char-count" id="input-count">0 字符</div>
             </div>
 
             <!-- 转换按钮 -->
             <div class="swap-section">
-              <button class="btn convert-btn" onclick="encodeText()">编码 →</button>
-              <button class="swap-btn" onclick="swapText()" title="交换">⇄</button>
-              <button class="btn convert-btn" onclick="decodeText()">← 解码</button>
+              <button class="btn convert-btn" onclick="encodeText()">编码 �?/button>
+              <button class="swap-btn" onclick="swapText()" title="交换">�?/button>
+              <button class="btn convert-btn" onclick="decodeText()">�?解码</button>
             </div>
 
             <!-- 输出 -->
@@ -406,14 +406,14 @@
               <textarea id="base64-result" readonly></textarea>
             </div>
 
-            <!-- 转换为图片 -->
+            <!-- 转换为图�?-->
             <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border);">
               <div class="io-header" style="margin-bottom: 0.5rem;">
-                <span class="io-title">Base64 转图片</span>
+                <span class="io-title">Base64 转图�?/span>
               </div>
               <textarea id="base64-input" placeholder="在此粘贴 Base64 编码..." style="min-height: 100px;"></textarea>
               <div class="action-buttons">
-                <button class="btn" onclick="base64ToImage()">转换为图片</button>
+                <button class="btn" onclick="base64ToImage()">转换为图�?/button>
                 <button class="btn btn-secondary" onclick="clearBase64Input()">清空</button>
               </div>
               <div class="image-preview" id="converted-image"></div>
@@ -427,6 +427,12 @@
   <!-- 页脚 -->
   <footer>
     <p>🐙 Octopus | 一个大脑，多条触手</p>
+    <div style="margin: 0.5rem 0;">
+      <a href="../index.html#about" style="color: var(--text-secondary); text-decoration: none; margin: 0 0.5rem; font-size: 0.8rem;">关于我们</a>
+      <a href="../index.html#privacy" style="color: var(--text-secondary); text-decoration: none; margin: 0 0.5rem; font-size: 0.8rem;">隐私政策</a>
+      <a href="../index.html#terms" style="color: var(--text-secondary); text-decoration: none; margin: 0 0.5rem; font-size: 0.8rem;">用户协议</a>
+    </div>
+    <p style="font-size: 0.75rem; color: var(--text-secondary); opacity: 0.7;">© 2025 Octopus</p>
   </footer>
 
   <!-- 提示 -->
@@ -453,14 +459,14 @@
     function encodeText() {
       const input = document.getElementById('text-input').value;
       if (!input) {
-        showToast('请输入文字', 'error');
+        showToast('请输入文�?, 'error');
         return;
       }
       try {
         const encoded = btoa(unescape(encodeURIComponent(input)));
         document.getElementById('text-output').value = encoded;
         updateCounts();
-        showToast('编码成功！');
+        showToast('编码成功�?);
       } catch (e) {
         showToast('编码失败', 'error');
       }
@@ -470,16 +476,16 @@
     function decodeText() {
       const input = document.getElementById('text-input').value;
       if (!input) {
-        showToast('请输入 Base64 编码', 'error');
+        showToast('请输�?Base64 编码', 'error');
         return;
       }
       try {
         const decoded = decodeURIComponent(escape(atob(input)));
         document.getElementById('text-output').value = decoded;
         updateCounts();
-        showToast('解码成功！');
+        showToast('解码成功�?);
       } catch (e) {
-        showToast('解码失败，请检查输入是否为有效的 Base64', 'error');
+        showToast('解码失败，请检查输入是否为有效�?Base64', 'error');
       }
     }
 
@@ -491,7 +497,7 @@
       input.value = output.value;
       output.value = temp;
       updateCounts();
-      showToast('已交换');
+      showToast('已交�?);
     }
 
     // 粘贴文字
@@ -500,9 +506,9 @@
         const text = await navigator.clipboard.readText();
         document.getElementById('text-input').value = text;
         updateCounts();
-        showToast('已粘贴');
+        showToast('已粘�?);
       } catch (e) {
-        showToast('无法读取剪贴板', 'error');
+        showToast('无法读取剪贴�?, 'error');
       }
     }
 
@@ -510,7 +516,7 @@
     function clearText() {
       document.getElementById('text-input').value = '';
       updateCounts();
-      showToast('已清空');
+      showToast('已清�?);
     }
 
     // 清空输出
@@ -567,13 +573,12 @@
         const base64 = e.target.result;
         document.getElementById('base64-result').value = base64;
         document.getElementById('image-preview').innerHTML = `<img src="${base64}" alt="预览">`;
-        showToast('图片转换成功！');
+        showToast('图片转换成功�?);
       };
       reader.readAsDataURL(file);
     }
 
-    // 格式化文件大小
-    function formatFileSize(bytes) {
+    // 格式化文件大�?    function formatFileSize(bytes) {
       if (bytes === 0) return '0 Bytes';
       const k = 1024;
       const sizes = ['Bytes', 'KB', 'MB', 'GB'];
@@ -617,14 +622,13 @@
       a.download = (currentFile ? currentFile.name : 'image') + '.base64.txt';
       a.click();
       URL.revokeObjectURL(url);
-      showToast('已开始下载');
+      showToast('已开始下�?);
     }
 
-    // Base64 转图片
-    function base64ToImage() {
+    // Base64 转图�?    function base64ToImage() {
       const base64 = document.getElementById('base64-input').value.trim();
       if (!base64) {
-        showToast('请输入 Base64 编码', 'error');
+        showToast('请输�?Base64 编码', 'error');
         return;
       }
       try {
@@ -632,10 +636,10 @@
         img.onload = function() {
           document.getElementById('converted-image').innerHTML = '';
           document.getElementById('converted-image').appendChild(img);
-          showToast('图片转换成功！');
+          showToast('图片转换成功�?);
         };
         img.onerror = function() {
-          showToast('无效的图片编码', 'error');
+          showToast('无效的图片编�?, 'error');
         };
         img.src = base64.startsWith('data:') ? base64 : 'data:image/png;base64,' + base64;
       } catch (e) {
@@ -647,7 +651,7 @@
     function clearBase64Input() {
       document.getElementById('base64-input').value = '';
       document.getElementById('converted-image').innerHTML = '';
-      showToast('已清空');
+      showToast('已清�?);
     }
 
     // 拖拽上传

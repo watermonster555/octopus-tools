@@ -8,12 +8,12 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
 <body>
-  <!-- 导航栏 -->
+  <!-- 导航�?-->
   <nav>
     <div class="nav-container">
       <a href="../index.html" class="logo">🐙 Octopus</a>
       <div class="nav-links">
-        <a href="qr-generator.html">二维码</a>
+        <a href="qr-generator.html">二维�?/a>
         <a href="password-gen.html">密码生成</a>
         <a href="json-formatter.html">JSON</a>
       </div>
@@ -31,7 +31,7 @@
       <!-- 输入区域 -->
       <div class="input-group">
         <label for="qr-text">输入内容</label>
-        <textarea id="qr-text" placeholder="输入文字、网址或任何内容..."></textarea>
+        <textarea id="qr-text" placeholder="输入文字、网址或任何内�?.."></textarea>
       </div>
 
       <!-- 选项 -->
@@ -49,7 +49,7 @@
 
       <!-- 按钮 -->
       <div class="btn-group">
-        <button class="btn" onclick="generateQR()">生成二维码</button>
+        <button class="btn" onclick="generateQR()">生成二维�?/button>
         <button class="btn btn-secondary" onclick="clearQR()">清空</button>
         <button class="btn btn-secondary" onclick="downloadQR()" id="download-btn" style="display: none;">下载图片</button>
       </div>
@@ -57,7 +57,7 @@
       <!-- 结果展示 -->
       <div class="result-area" id="result-area">
         <div class="result-placeholder">
-          <p>二维码将显示在这里</p>
+          <p>二维码将显示在这�?/p>
         </div>
       </div>
     </div>
@@ -66,6 +66,12 @@
   <!-- 页脚 -->
   <footer>
     <p>🐙 Octopus | 一个大脑，多条触手</p>
+    <div style="margin: 0.5rem 0;">
+      <a href="../index.html#about" style="color: var(--text-secondary); text-decoration: none; margin: 0 0.5rem; font-size: 0.8rem;">关于我们</a>
+      <a href="../index.html#privacy" style="color: var(--text-secondary); text-decoration: none; margin: 0 0.5rem; font-size: 0.8rem;">隐私政策</a>
+      <a href="../index.html#terms" style="color: var(--text-secondary); text-decoration: none; margin: 0 0.5rem; font-size: 0.8rem;">用户协议</a>
+    </div>
+    <p style="font-size: 0.75rem; color: var(--text-secondary); opacity: 0.7;">© 2025 Octopus</p>
   </footer>
 
   <!-- 提示 -->
@@ -79,8 +85,7 @@
       document.getElementById('size-value').textContent = this.value + 'px';
     });
 
-    // 生成二维码
-    function generateQR() {
+    // 生成二维�?    function generateQR() {
       const text = document.getElementById('qr-text').value.trim();
       if (!text) {
         showToast('请输入内容！', 'error');
@@ -91,11 +96,9 @@
       const color = document.getElementById('qr-color').value;
       const resultArea = document.getElementById('result-area');
 
-      // 清空之前的结果
-      resultArea.innerHTML = '';
+      // 清空之前的结�?      resultArea.innerHTML = '';
 
-      // 创建二维码
-      const qrDiv = document.createElement('div');
+      // 创建二维�?      const qrDiv = document.createElement('div');
       qrDiv.id = 'qrcode';
       resultArea.appendChild(qrDiv);
 
@@ -119,22 +122,21 @@
       document.getElementById('qr-text').value = '';
       document.getElementById('result-area').innerHTML = `
         <div class="result-placeholder">
-          <p>二维码将显示在这里</p>
+          <p>二维码将显示在这�?/p>
         </div>
       `;
       document.getElementById('download-btn').style.display = 'none';
       currentQR = null;
     }
 
-    // 下载二维码
-    function downloadQR() {
+    // 下载二维�?    function downloadQR() {
       const qrCanvas = document.querySelector('#qrcode canvas');
       if (qrCanvas) {
         const link = document.createElement('a');
         link.download = 'qrcode.png';
         link.href = qrCanvas.toDataURL('image/png');
         link.click();
-        showToast('下载成功！');
+        showToast('下载成功�?);
       }
     }
 
