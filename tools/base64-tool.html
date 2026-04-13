@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Base64 工具 - Octopus</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .tab-container {
+      margin-bottom: 1.5rem;
+    }
+
+    .tab-buttons {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+      background: var(--bg-secondary);
+      padding: 0.5rem;
+      border-radius: 12px;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 0.75rem 1rem;
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      cursor: pointer;
+      border-radius: 8px;
+      transition: all 0.3s;
+    }
+
+    .tab-btn.active {
+      background: var(--accent);
+      color: #000;
+      font-weight: 600;
+    }
+
+    .tab-btn:hover:not(.active) {
+      color: var(--text-primary);
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .input-output-group {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 1rem;
+      align-items: start;
+    }
+
+    @media (max-width: 768px) {
+      .input-output-group {
+        grid-template-columns: 1fr;
+      }
+      
+      .swap-btn {
+        transform: rotate(90deg) !important;
+      }
+    }
+
+    .io-panel {
+      background: var(--bg-secondary);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+
+    .io-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem 1rem;
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .io-title {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+
+    .io-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .io-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      padding: 0.25rem 0.75rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .io-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .io-textarea {
+      width: 100%;
+      min-height: 200px;
+      padding: 1rem;
+      background: transparent;
+      border: none;
+      color: var(--text-primary);
+      font-family: 'Consolas', 'Monaco', monospace;
+      font-size: 0.875rem;
+      line-height: 1.6;
+      resize: vertical;
+      outline: none;
+    }
+
+    .swap-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+    }
+
+    .swap-btn {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: var(--accent);
+      border: none;
+      color: #000;
+      font-size: 1.25rem;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .swap-btn:hover {
+      transform: rotate(180deg);
+      box-shadow: 0 0 20px rgba(0, 212, 170, 0.4);
+    }
+
+    .convert-btn {
+      padding: 0.75rem 2rem;
+      font-size: 1rem;
+    }
+
+    /* 图片处理区域 */
+    .image-dropzone {
+      border: 2px dashed var(--border);
+      border-radius: 12px;
+      padding: 3rem 2rem;
+      text-align: center;
+      background: var(--bg-secondary);
+      transition: all 0.3s;
+      cursor: pointer;
+    }
+
+    .image-dropzone:hover,
+    .image-dropzone.dragover {
+      border-color: var(--accent);
+      background: rgba(0, 212, 170, 0.05);
+    }
+
+    .image-dropzone .icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+
+    .image-dropzone .text {
+      color: var(--text-secondary);
+      margin-bottom: 0.5rem;
+    }
+
+    .image-dropzone .hint {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      opacity: 0.7;
+    }
+
+    .image-preview {
+      margin-top: 1.5rem;
+      text-align: center;
+    }
+
+    .image-preview img {
+      max-width: 100%;
+      max-height: 300px;
+      border-radius: 8px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .base64-output {
+      margin-top: 1.5rem;
+    }
+
+    .base64-output textarea {
+      width: 100%;
+      min-height: 150px;
+      padding: 1rem;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text-primary);
+      font-family: monospace;
+      font-size: 0.75rem;
+      line-height: 1.4;
+      resize: vertical;
+      word-break: break-all;
+    }
+
+    .file-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem 1rem;
+      background: var(--bg-card);
+      border-radius: 8px;
+      margin-bottom: 1rem;
+    }
+
+    .file-name {
+      font-weight: 600;
+    }
+
+    .file-size {
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+    }
+
+    .remove-file {
+      background: transparent;
+      border: none;
+      color: #e74c3c;
+      cursor: pointer;
+      font-size: 1.25rem;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      margin-top: 1rem;
+    }
+
+    .char-count {
+      text-align: right;
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+      margin-top: 0.5rem;
+    }
+
+    .sample-texts {
+      margin-top: 1.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .sample-title {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.75rem;
+    }
+
+    .sample-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .sample-tag {
+      padding: 0.5rem 1rem;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .sample-tag:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+  </style>
+</head>
+<body>
+  <!-- 导航栏 -->
+  <nav>
+    <div class="nav-container">
+      <a href="../index.html" class="logo">🐙 Octopus</a>
+      <div class="nav-links">
+        <a href="qr-generator.html">二维码</a>
+        <a href="password-gen.html">密码生成</a>
+        <a href="json-formatter.html">JSON</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- 主体 -->
+  <main class="tool-container">
+    <div class="tool-header">
+      <h1>Base64 工具</h1>
+      <p>文字和图片的 Base64 编码解码，支持文件上传转换</p>
+    </div>
+
+    <div class="card">
+      <!-- 标签切换 -->
+      <div class="tab-container">
+        <div class="tab-buttons">
+          <button class="tab-btn active" onclick="switchTab('text')">🔤 文字编码</button>
+          <button class="tab-btn" onclick="switchTab('image')">🖼️ 图片转换</button>
+        </div>
+
+        <!-- 文字编码 -->
+        <div class="tab-content active" id="text-tab">
+          <div class="input-output-group">
+            <!-- 输入 -->
+            <div class="io-panel">
+              <div class="io-header">
+                <span class="io-title">输入文字</span>
+                <div class="io-actions">
+                  <button class="io-btn" onclick="pasteText()">粘贴</button>
+                  <button class="io-btn" onclick="clearText()">清空</button>
+                </div>
+              </div>
+              <textarea class="io-textarea" id="text-input" placeholder="在此输入要编码或解码的文字..."></textarea>
+              <div class="char-count" id="input-count">0 字符</div>
+            </div>
+
+            <!-- 转换按钮 -->
+            <div class="swap-section">
+              <button class="btn convert-btn" onclick="encodeText()">编码 →</button>
+              <button class="swap-btn" onclick="swapText()" title="交换">⇄</button>
+              <button class="btn convert-btn" onclick="decodeText()">← 解码</button>
+            </div>
+
+            <!-- 输出 -->
+            <div class="io-panel">
+              <div class="io-header">
+                <span class="io-title">转换结果</span>
+                <div class="io-actions">
+                  <button class="io-btn" onclick="copyResult()">复制</button>
+                  <button class="io-btn" onclick="clearResult()">清空</button>
+                </div>
+              </div>
+              <textarea class="io-textarea" id="text-output" placeholder="转换结果将显示在这里..." readonly></textarea>
+              <div class="char-count" id="output-count">0 字符</div>
+            </div>
+          </div>
+
+          <!-- 示例文字 -->
+          <div class="sample-texts">
+            <div class="sample-title">快速示例（点击使用）：</div>
+            <div class="sample-list">
+              <span class="sample-tag" onclick="useSample('Hello Octopus!')">Hello Octopus!</span>
+              <span class="sample-tag" onclick="useSample('一个核心大脑，统筹无数灵活触手')">中文测试</span>
+              <span class="sample-tag" onclick="useSample('{"name":"Octopus","tools":10}')">JSON 数据</span>
+              <span class="sample-tag" onclick="useSample('https://github.com/watermonster555')">URL 链接</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 图片转换 -->
+        <div class="tab-content" id="image-tab">
+          <!-- 上传区域 -->
+          <div class="image-dropzone" id="dropzone" onclick="document.getElementById('file-input').click()">
+            <div class="icon">📁</div>
+            <div class="text">点击或拖拽图片到此处</div>
+            <div class="hint">支持 JPG、PNG、GIF、WebP 格式</div>
+            <input type="file" id="file-input" accept="image/*" style="display: none;" onchange="handleFile(this.files[0])">
+          </div>
+
+          <!-- 文件信息 -->
+          <div id="file-info" style="display: none;">
+            <div class="file-info">
+              <span class="file-name" id="file-name"></span>
+              <span class="file-size" id="file-size"></span>
+              <button class="remove-file" onclick="removeFile()">×</button>
+            </div>
+
+            <!-- 图片预览 -->
+            <div class="image-preview" id="image-preview"></div>
+
+            <!-- Base64 输出 -->
+            <div class="base64-output">
+              <div class="io-header" style="margin-bottom: 0.5rem;">
+                <span class="io-title">Base64 编码结果</span>
+                <div class="io-actions">
+                  <button class="io-btn" onclick="copyBase64()">复制</button>
+                  <button class="io-btn" onclick="downloadBase64()">下载 TXT</button>
+                </div>
+              </div>
+              <textarea id="base64-result" readonly></textarea>
+            </div>
+
+            <!-- 转换为图片 -->
+            <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border);">
+              <div class="io-header" style="margin-bottom: 0.5rem;">
+                <span class="io-title">Base64 转图片</span>
+              </div>
+              <textarea id="base64-input" placeholder="在此粘贴 Base64 编码..." style="min-height: 100px;"></textarea>
+              <div class="action-buttons">
+                <button class="btn" onclick="base64ToImage()">转换为图片</button>
+                <button class="btn btn-secondary" onclick="clearBase64Input()">清空</button>
+              </div>
+              <div class="image-preview" id="converted-image"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- 页脚 -->
+  <footer>
+    <p>🐙 Octopus | 一个大脑，多条触手</p>
+  </footer>
+
+  <!-- 提示 -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+    let currentFile = null;
+
+    // 切换标签
+    function switchTab(tab) {
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+      
+      if (tab === 'text') {
+        document.querySelectorAll('.tab-btn')[0].classList.add('active');
+        document.getElementById('text-tab').classList.add('active');
+      } else {
+        document.querySelectorAll('.tab-btn')[1].classList.add('active');
+        document.getElementById('image-tab').classList.add('active');
+      }
+    }
+
+    // 文字编码
+    function encodeText() {
+      const input = document.getElementById('text-input').value;
+      if (!input) {
+        showToast('请输入文字', 'error');
+        return;
+      }
+      try {
+        const encoded = btoa(unescape(encodeURIComponent(input)));
+        document.getElementById('text-output').value = encoded;
+        updateCounts();
+        showToast('编码成功！');
+      } catch (e) {
+        showToast('编码失败', 'error');
+      }
+    }
+
+    // 文字解码
+    function decodeText() {
+      const input = document.getElementById('text-input').value;
+      if (!input) {
+        showToast('请输入 Base64 编码', 'error');
+        return;
+      }
+      try {
+        const decoded = decodeURIComponent(escape(atob(input)));
+        document.getElementById('text-output').value = decoded;
+        updateCounts();
+        showToast('解码成功！');
+      } catch (e) {
+        showToast('解码失败，请检查输入是否为有效的 Base64', 'error');
+      }
+    }
+
+    // 交换输入输出
+    function swapText() {
+      const input = document.getElementById('text-input');
+      const output = document.getElementById('text-output');
+      const temp = input.value;
+      input.value = output.value;
+      output.value = temp;
+      updateCounts();
+      showToast('已交换');
+    }
+
+    // 粘贴文字
+    async function pasteText() {
+      try {
+        const text = await navigator.clipboard.readText();
+        document.getElementById('text-input').value = text;
+        updateCounts();
+        showToast('已粘贴');
+      } catch (e) {
+        showToast('无法读取剪贴板', 'error');
+      }
+    }
+
+    // 清空输入
+    function clearText() {
+      document.getElementById('text-input').value = '';
+      updateCounts();
+      showToast('已清空');
+    }
+
+    // 清空输出
+    function clearResult() {
+      document.getElementById('text-output').value = '';
+      updateCounts();
+    }
+
+    // 复制结果
+    function copyResult() {
+      const output = document.getElementById('text-output');
+      if (!output.value) {
+        showToast('没有可复制的内容', 'error');
+        return;
+      }
+      navigator.clipboard.writeText(output.value).then(() => {
+        showToast('已复制到剪贴板！');
+      });
+    }
+
+    // 使用示例
+    function useSample(text) {
+      document.getElementById('text-input').value = text;
+      updateCounts();
+      encodeText();
+    }
+
+    // 更新字符计数
+    function updateCounts() {
+      const input = document.getElementById('text-input').value;
+      const output = document.getElementById('text-output').value;
+      document.getElementById('input-count').textContent = input.length + ' 字符';
+      document.getElementById('output-count').textContent = output.length + ' 字符';
+    }
+
+    document.getElementById('text-input').addEventListener('input', updateCounts);
+
+    // 处理文件上传
+    function handleFile(file) {
+      if (!file) return;
+      if (!file.type.startsWith('image/')) {
+        showToast('请选择图片文件', 'error');
+        return;
+      }
+
+      currentFile = file;
+      document.getElementById('file-name').textContent = file.name;
+      document.getElementById('file-size').textContent = formatFileSize(file.size);
+      document.getElementById('file-info').style.display = 'block';
+      document.getElementById('dropzone').style.display = 'none';
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const base64 = e.target.result;
+        document.getElementById('base64-result').value = base64;
+        document.getElementById('image-preview').innerHTML = `<img src="${base64}" alt="预览">`;
+        showToast('图片转换成功！');
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // 格式化文件大小
+    function formatFileSize(bytes) {
+      if (bytes === 0) return '0 Bytes';
+      const k = 1024;
+      const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+
+    // 移除文件
+    function removeFile() {
+      currentFile = null;
+      document.getElementById('file-input').value = '';
+      document.getElementById('file-info').style.display = 'none';
+      document.getElementById('dropzone').style.display = 'block';
+      document.getElementById('base64-result').value = '';
+      document.getElementById('image-preview').innerHTML = '';
+    }
+
+    // 复制 Base64
+    function copyBase64() {
+      const base64 = document.getElementById('base64-result').value;
+      if (!base64) {
+        showToast('没有可复制的内容', 'error');
+        return;
+      }
+      navigator.clipboard.writeText(base64).then(() => {
+        showToast('已复制到剪贴板！');
+      });
+    }
+
+    // 下载 Base64
+    function downloadBase64() {
+      const base64 = document.getElementById('base64-result').value;
+      if (!base64) {
+        showToast('没有可下载的内容', 'error');
+        return;
+      }
+      const blob = new Blob([base64], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = (currentFile ? currentFile.name : 'image') + '.base64.txt';
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast('已开始下载');
+    }
+
+    // Base64 转图片
+    function base64ToImage() {
+      const base64 = document.getElementById('base64-input').value.trim();
+      if (!base64) {
+        showToast('请输入 Base64 编码', 'error');
+        return;
+      }
+      try {
+        const img = new Image();
+        img.onload = function() {
+          document.getElementById('converted-image').innerHTML = '';
+          document.getElementById('converted-image').appendChild(img);
+          showToast('图片转换成功！');
+        };
+        img.onerror = function() {
+          showToast('无效的图片编码', 'error');
+        };
+        img.src = base64.startsWith('data:') ? base64 : 'data:image/png;base64,' + base64;
+      } catch (e) {
+        showToast('转换失败', 'error');
+      }
+    }
+
+    // 清空 Base64 输入
+    function clearBase64Input() {
+      document.getElementById('base64-input').value = '';
+      document.getElementById('converted-image').innerHTML = '';
+      showToast('已清空');
+    }
+
+    // 拖拽上传
+    const dropzone = document.getElementById('dropzone');
+    dropzone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropzone.classList.add('dragover');
+    });
+    dropzone.addEventListener('dragleave', () => {
+      dropzone.classList.remove('dragover');
+    });
+    dropzone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropzone.classList.remove('dragover');
+      const file = e.dataTransfer.files[0];
+      if (file) handleFile(file);
+    });
+
+    // 显示提示
+    function showToast(message, type = 'success') {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      if (type === 'error') {
+        toast.style.background = '#e74c3c';
+        toast.style.color = '#fff';
+      } else {
+        toast.style.background = 'var(--accent)';
+        toast.style.color = '#000';
+      }
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2000);
+    }
+  </script>
+</body>
+</html>
