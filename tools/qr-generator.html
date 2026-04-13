@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>二维码生成器 - Octopus</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<body>
+  <!-- 导航栏 -->
+  <nav>
+    <div class="nav-container">
+      <a href="../index.html" class="logo">🐙 Octopus</a>
+      <div class="nav-links">
+        <a href="qr-generator.html">二维码</a>
+        <a href="password-gen.html">密码生成</a>
+        <a href="json-formatter.html">JSON</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- 主体 -->
+  <main class="tool-container">
+    <div class="tool-header">
+      <h1>二维码生成器</h1>
+      <p>输入文字或链接，一键生成二维码</p>
+    </div>
+
+    <div class="card">
+      <!-- 输入区域 -->
+      <div class="input-group">
+        <label for="qr-text">输入内容</label>
+        <textarea id="qr-text" placeholder="输入文字、网址或任何内容..."></textarea>
+      </div>
+
+      <!-- 选项 -->
+      <div class="options-group">
+        <div class="input-group">
+          <label for="qr-size">尺寸</label>
+          <input type="range" id="qr-size" min="100" max="400" value="200">
+          <span id="size-value" style="color: var(--text-secondary); font-size: 0.9rem;">200px</span>
+        </div>
+        <div class="input-group">
+          <label for="qr-color">颜色</label>
+          <input type="color" id="qr-color" value="#000000" style="width: 100%; height: 40px; border: none; border-radius: 8px; cursor: pointer;">
+        </div>
+      </div>
+
+      <!-- 按钮 -->
+      <div class="btn-group">
+        <button class="btn" onclick="generateQR()">生成二维码</button>
+        <button class="btn btn-secondary" onclick="clearQR()">清空</button>
+        <button class="btn btn-secondary" onclick="downloadQR()" id="download-btn" style="display: none;">下载图片</button>
+      </div>
+
+      <!-- 结果展示 -->
+      <div class="result-area" id="result-area">
+        <div class="result-placeholder">
+          <p>二维码将显示在这里</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- 页脚 -->
+  <footer>
+    <p>🐙 Octopus | 一个大脑，多条触手</p>
+  </footer>
+
+  <!-- 提示 -->
+  <div class="toast" id="toast">已复制到剪贴板！</div>
+
+  <script>
+    let currentQR = null;
+
+    // 尺寸滑块实时显示
+    document.getElementById('qr-size').addEventListener('input', function() {
+      document.getElementById('size-value').textContent = this.value + 'px';
+    });
+
+    // 生成二维码
+    function generateQR() {
+      const text = document.getElementById('qr-text').value.trim();
+      if (!text) {
+        showToast('请输入内容！', 'error');
+        return;
+      }
+
+      const size = parseInt(document.getElementById('qr-size').value);
+      const color = document.getElementById('qr-color').value;
+      const resultArea = document.getElementById('result-area');
+
+      // 清空之前的结果
+      resultArea.innerHTML = '';
+
+      // 创建二维码
+      const qrDiv = document.createElement('div');
+      qrDiv.id = 'qrcode';
+      resultArea.appendChild(qrDiv);
+
+      currentQR = new QRCode(qrDiv, {
+        text: text,
+        width: size,
+        height: size,
+        colorDark: color,
+        colorLight: '#ffffff',
+        correctLevel: QRCode.CorrectLevel.M
+      });
+
+      // 显示下载按钮
+      document.getElementById('download-btn').style.display = 'inline-flex';
+      
+      showToast('二维码生成成功！');
+    }
+
+    // 清空
+    function clearQR() {
+      document.getElementById('qr-text').value = '';
+      document.getElementById('result-area').innerHTML = `
+        <div class="result-placeholder">
+          <p>二维码将显示在这里</p>
+        </div>
+      `;
+      document.getElementById('download-btn').style.display = 'none';
+      currentQR = null;
+    }
+
+    // 下载二维码
+    function downloadQR() {
+      const qrCanvas = document.querySelector('#qrcode canvas');
+      if (qrCanvas) {
+        const link = document.createElement('a');
+        link.download = 'qrcode.png';
+        link.href = qrCanvas.toDataURL('image/png');
+        link.click();
+        showToast('下载成功！');
+      }
+    }
+
+    // 显示提示
+    function showToast(message, type = 'success') {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      if (type === 'error') {
+        toast.style.background = '#e74c3c';
+        toast.style.color = '#fff';
+      } else {
+        toast.style.background = 'var(--accent)';
+        toast.style.color = '#000';
+      }
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2000);
+    }
+
+    // 回车生成
+    document.getElementById('qr-text').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        generateQR();
+      }
+    });
+  </script>
+</body>
+</html>

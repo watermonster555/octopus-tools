@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Octopus - 一个大脑，多条触手，高效处理各类事务</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* 章鱼动画 */
+    @keyframes float {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-20px) rotate(5deg); }
+    }
+
+    @keyframes tentacle {
+      0%, 100% { transform: scaleY(1); }
+      50% { transform: scaleY(1.1); }
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.6; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.05); }
+    }
+
+    .octopus-container {
+      position: relative;
+      display: inline-block;
+      margin-bottom: 2rem;
+    }
+
+    .octopus-emoji {
+      font-size: 6rem;
+      display: inline-block;
+      animation: float 3s ease-in-out infinite;
+      filter: drop-shadow(0 10px 30px rgba(0, 212, 170, 0.3));
+    }
+
+    .tentacles {
+      position: absolute;
+      bottom: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 8px;
+    }
+
+    .tentacle {
+      width: 4px;
+      height: 30px;
+      background: linear-gradient(to bottom, var(--accent), transparent);
+      border-radius: 2px;
+      animation: tentacle 2s ease-in-out infinite;
+    }
+
+    .tentacle:nth-child(1) { animation-delay: 0s; height: 25px; }
+    .tentacle:nth-child(2) { animation-delay: 0.2s; height: 35px; }
+    .tentacle:nth-child(3) { animation-delay: 0.4s; height: 30px; }
+    .tentacle:nth-child(4) { animation-delay: 0.6s; height: 28px; }
+    .tentacle:nth-child(5) { animation-delay: 0.8s; height: 32px; }
+
+    .hero {
+      text-align: center;
+      padding: 3rem 1.5rem 4rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* 背景装饰 */
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle at 30% 50%, rgba(0, 212, 170, 0.05) 0%, transparent 50%),
+                  radial-gradient(circle at 70% 50%, rgba(0, 245, 212, 0.05) 0%, transparent 50%);
+      animation: pulse 8s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    .hero h1 {
+      font-size: 3.5rem;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(135deg, var(--accent), #00f5d4, var(--accent));
+      background-size: 200% 200%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: gradient 3s ease infinite;
+    }
+
+    @keyframes gradient {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+
+    .hero .tagline {
+      font-size: 1.5rem;
+      color: var(--accent);
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+      letter-spacing: 2px;
+    }
+
+    .hero .description {
+      color: var(--text-secondary);
+      font-size: 1.1rem;
+      max-width: 700px;
+      margin: 0 auto 2rem;
+      line-height: 1.8;
+    }
+
+    .stats {
+      display: flex;
+      justify-content: center;
+      gap: 3rem;
+      margin-top: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .stat-item {
+      text-align: center;
+    }
+
+    .stat-number {
+      font-size: 2.5rem;
+      font-weight: bold;
+      color: var(--accent);
+      display: block;
+    }
+
+    .stat-label {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+    
+    .tools-grid {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 1.5rem 4rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+    
+    .tool-card {
+      background: var(--bg-card);
+      border-radius: 16px;
+      padding: 1.5rem;
+      border: 1px solid var(--border);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      text-decoration: none;
+      color: inherit;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .tool-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(0, 212, 170, 0.1), transparent);
+      transition: left 0.5s;
+    }
+
+    .tool-card:hover::before {
+      left: 100%;
+    }
+
+    .tool-card:hover {
+      transform: translateY(-8px) scale(1.02);
+      border-color: var(--accent);
+      box-shadow: 0 20px 40px rgba(0, 212, 170, 0.2);
+    }
+
+    .tool-card:hover .tool-icon {
+      transform: scale(1.2) rotate(10deg);
+    }
+    
+    .tool-icon {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      display: inline-block;
+    }
+    
+    .tool-card h3 {
+      font-size: 1.25rem;
+      margin-bottom: 0.5rem;
+      color: var(--text-primary);
+    }
+    
+    .tool-card p {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+    
+    .tool-status {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      margin-top: 1rem;
+    }
+    
+    .status-ready {
+      background: rgba(0, 212, 170, 0.2);
+      color: var(--accent);
+    }
+    
+    .status-pending {
+      background: rgba(160, 160, 160, 0.2);
+      color: var(--text-secondary);
+    }
+  </style>
+</head>
+<body>
+  <!-- 导航栏 -->
+  <nav>
+    <div class="nav-container">
+      <a href="index.html" class="logo">🐙 Octopus</a>
+      <div class="nav-links">
+        <a href="tools/qr-generator.html">二维码</a>
+        <a href="tools/password-gen.html">密码生成</a>
+        <a href="tools/json-formatter.html">JSON</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="octopus-container">
+      <span class="octopus-emoji">🐙</span>
+      <div class="tentacles">
+        <div class="tentacle"></div>
+        <div class="tentacle"></div>
+        <div class="tentacle"></div>
+        <div class="tentacle"></div>
+        <div class="tentacle"></div>
+      </div>
+    </div>
+    <h1>Octopus</h1>
+    <p class="tagline">一个核心大脑，统筹无数灵活触手</p>
+    <p class="description">Octopus 是一款高效的小工具集合，就像章鱼一样 —— 中央大脑快速决策，多条触手同时处理各类琐碎事务。无需注册，即开即用，数据本地处理保护隐私。</p>
+
+    <div class="stats">
+      <div class="stat-item">
+        <span class="stat-number">10</span>
+        <span class="stat-label">实用工具</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-number">0</span>
+        <span class="stat-label">元费用</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-number">100%</span>
+        <span class="stat-label">隐私保护</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 工具网格 -->
+  <section class="tools-grid">
+    <a href="tools/qr-generator.html" class="tool-card">
+      <div class="tool-icon">📱</div>
+      <h3>二维码生成器</h3>
+      <p>输入文字或链接，一键生成二维码。支持自定义尺寸和颜色。</p>
+      <span class="tool-status status-ready">✅ 可用</span>
+    </a>
+
+    <a href="tools/password-gen.html" class="tool-card">
+      <div class="tool-icon">🔐</div>
+      <h3>密码生成器</h3>
+      <p>生成强密码，支持自定义长度和字符类型。密码强度实时显示。</p>
+      <span class="tool-status status-pending">⏳ 待开发</span>
+    </a>
+
+    <a href="tools/json-formatter.html" class="tool-card">
+      <div class="tool-icon">📋</div>
+      <h3>JSON 格式化</h3>
+      <p>JSON 美化、压缩、验证。支持语法高亮和错误提示。</p>
+      <span class="tool-status status-pending">⏳ 待开发</span>
+    </a>
+
+    <a href="tools/base64-tool.html" class="tool-card">
+      <div class="tool-icon">🔤</div>
+      <h3>Base64 工具</h3>
+      <p>文字和图片的 Base64 编码解码。支持文件上传转换。</p>
+      <span class="tool-status status-pending">⏳ 待开发</span>
+    </a>
+
+    <a href="tools/image-compress.html" class="tool-card">
+      <div class="tool-icon">🖼️</div>
+      <h3>图片压缩</h3>
+      <p>压缩图片文件大小，支持 JPG、PNG 格式。本地处理，保护隐私。</p>
+      <span class="tool-status status-pending">⏳ 待开发</span>
+    </a>
+
+    <a href="tools/word-count.html" class="tool-card">
+      <div class="tool-icon">📝</div>
+      <h3>字数统计</h3>
+      <p>实时统计字数、字符数、段落数。估算阅读时间。</p>
+      <span class="tool-status status-pending">⏳ 待开发</span>
+    </a>
+
+    <a href="tools/color-picker.html" class="tool-card">
+      <div class="tool-icon">🎨</div>
+      <h3>颜色选择器</h3>
+      <p>颜色格式转换（HEX、RGB、HSL）。从屏幕取色。</p>
+      <span class="tool-status status-pending">⏳ 待开发</span>
+    </a>
+
+    <a href="tools/unit-converter.html" class="tool-card">
+      <div class="tool-icon">📏</div>
+      <h3>单位换算</h3>
+      <p>长度、重量、温度、数据存储等单位换算。</p>
+      <span class="tool-status status-pending">⏳ 待开发</span>
+    </a>
+
+    <a href="tools/markdown-preview.html" class="tool-card">
+      <div class="tool-icon">📄</div>
+      <h3>Markdown 预览</h3>
+      <p>实时预览 Markdown 渲染效果。支持导出 HTML。</p>
+      <span class="tool-status status-pending">⏳ 待开发</span>
+    </a>
+
+    <a href="tools/diff-checker.html" class="tool-card">
+      <div class="tool-icon">🔍</div>
+      <h3>文本对比</h3>
+      <p>对比两段文本的差异。高亮显示增删改。</p>
+      <span class="tool-status status-pending">⏳ 待开发</span>
+    </a>
+  </section>
+
+  <!-- 页脚 -->
+  <footer>
+    <div style="margin-bottom: 1rem; font-size: 2rem;">🐙</div>
+    <p style="font-size: 1.2rem; margin-bottom: 0.5rem;">Octopus</p>
+    <p style="color: var(--text-secondary); margin-bottom: 1rem;">一个大脑，多条触手，高效处理各类事务</p>
+    <p style="font-size: 0.9rem; color: var(--text-secondary);">纯前端工具 · 数据不上传服务器 · 保护隐私</p>
+  </footer>
+</body>
+</html>
