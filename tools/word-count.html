@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>字数统计 - Octopus</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .stats-container {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    @media (max-width: 768px) {
+      .stats-container {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .stat-card {
+      background: var(--bg-secondary);
+      border-radius: 12px;
+      padding: 1.5rem 1rem;
+      text-align: center;
+      border: 1px solid var(--border);
+      transition: all 0.3s;
+    }
+
+    .stat-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-2px);
+    }
+
+    .stat-number {
+      font-size: 2.5rem;
+      font-weight: bold;
+      color: var(--accent);
+      line-height: 1;
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+    }
+
+    .input-section {
+      margin-bottom: 1.5rem;
+    }
+
+    .text-area-wrapper {
+      position: relative;
+    }
+
+    .text-input {
+      width: 100%;
+      min-height: 300px;
+      padding: 1rem;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      color: var(--text-primary);
+      font-size: 1rem;
+      line-height: 1.6;
+      resize: vertical;
+      outline: none;
+      transition: border-color 0.3s;
+    }
+
+    .text-input:focus {
+      border-color: var(--accent);
+    }
+
+    .text-input::placeholder {
+      color: var(--text-secondary);
+      opacity: 0.6;
+    }
+
+    .input-actions {
+      display: flex;
+      gap: 0.75rem;
+      margin-top: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .detail-stats {
+      background: var(--bg-secondary);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .detail-title {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      color: var(--text-secondary);
+    }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 1rem;
+    }
+
+    .detail-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.75rem 1rem;
+      background: var(--bg-card);
+      border-radius: 8px;
+    }
+
+    .detail-name {
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+    }
+
+    .detail-value {
+      font-weight: 600;
+      color: var(--accent);
+    }
+
+    .reading-time {
+      background: linear-gradient(135deg, rgba(0, 212, 170, 0.1), rgba(0, 245, 212, 0.1));
+      border: 1px solid var(--accent);
+      border-radius: 12px;
+      padding: 1.5rem;
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .reading-icon {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .reading-text {
+      font-size: 1.1rem;
+      color: var(--text-primary);
+    }
+
+    .reading-highlight {
+      color: var(--accent);
+      font-weight: bold;
+    }
+
+    .keyword-section {
+      background: var(--bg-secondary);
+      border-radius: 12px;
+      padding: 1.5rem;
+    }
+
+    .keyword-title {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      color: var(--text-secondary);
+    }
+
+    .keyword-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .keyword-tag {
+      padding: 0.5rem 1rem;
+      background: var(--bg-card);
+      border-radius: 20px;
+      font-size: 0.875rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .keyword-count {
+      background: var(--accent);
+      color: #000;
+      padding: 0.125rem 0.5rem;
+      border-radius: 10px;
+      font-size: 0.75rem;
+      font-weight: bold;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 3rem;
+      color: var(--text-secondary);
+    }
+
+    .sample-texts {
+      margin-top: 1rem;
+    }
+
+    .sample-title {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.75rem;
+    }
+
+    .sample-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .sample-tag {
+      padding: 0.5rem 1rem;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .sample-tag:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      margin-top: 0.5rem;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 2px;
+      transition: width 0.3s;
+    }
+
+    .limit-section {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-top: 1rem;
+      padding: 1rem;
+      background: var(--bg-secondary);
+      border-radius: 8px;
+    }
+
+    .limit-input {
+      width: 100px;
+      padding: 0.5rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text-primary);
+      text-align: center;
+    }
+
+    .limit-status {
+      flex: 1;
+      text-align: right;
+      font-size: 0.875rem;
+    }
+
+    .limit-status.ok {
+      color: var(--accent);
+    }
+
+    .limit-status.over {
+      color: #e74c3c;
+    }
+  </style>
+</head>
+<body>
+  <!-- 导航栏 -->
+  <nav>
+    <div class="nav-container">
+      <a href="../index.html" class="logo">🐙 Octopus</a>
+      <div class="nav-links">
+        <a href="qr-generator.html">二维码</a>
+        <a href="password-gen.html">密码生成</a>
+        <a href="json-formatter.html">JSON</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- 主体 -->
+  <main class="tool-container">
+    <div class="tool-header">
+      <h1>字数统计</h1>
+      <p>实时统计字数、字符数、段落数，估算阅读时间</p>
+    </div>
+
+    <div class="card">
+      <!-- 主要统计 -->
+      <div class="stats-container">
+        <div class="stat-card">
+          <div class="stat-number" id="word-count">0</div>
+          <div class="stat-label">字数</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="char-count">0</div>
+          <div class="stat-label">字符数</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="paragraph-count">0</div>
+          <div class="stat-label">段落数</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="line-count">0</div>
+          <div class="stat-label">行数</div>
+        </div>
+      </div>
+
+      <!-- 阅读时间 -->
+      <div class="reading-time" id="reading-time" style="display: none;">
+        <div class="reading-icon">📖</div>
+        <div class="reading-text">
+          预计阅读时间：<span class="reading-highlight" id="reading-value">0 秒</span>
+        </div>
+      </div>
+
+      <!-- 文本输入 -->
+      <div class="input-section">
+        <div class="text-area-wrapper">
+          <textarea 
+            class="text-input" 
+            id="text-input" 
+            placeholder="在此粘贴或输入文本...
+
+支持实时统计：
+• 中文字数
+• 英文单词数
+• 总字符数（含空格/不含空格）
+• 段落数、行数
+• 阅读时间估算"
+          ></textarea>
+        </div>
+
+        <!-- 字数限制 -->
+        <div class="limit-section">
+          <label style="white-space: nowrap;">目标字数：</label>
+          <input type="number" class="limit-input" id="limit-input" placeholder="无限制" min="1">
+          <div class="limit-status" id="limit-status"></div>
+        </div>
+        <div class="progress-bar" id="progress-bar" style="display: none;">
+          <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+        </div>
+
+        <div class="input-actions">
+          <button class="btn" onclick="pasteText()">粘贴</button>
+          <button class="btn btn-secondary" onclick="copyText()">复制</button>
+          <button class="btn btn-secondary" onclick="clearText()">清空</button>
+          <button class="btn btn-secondary" onclick="loadSample()">加载示例</button>
+        </div>
+      </div>
+
+      <!-- 详细统计 -->
+      <div class="detail-stats" id="detail-stats" style="display: none;">
+        <div class="detail-title">详细统计</div>
+        <div class="detail-grid">
+          <div class="detail-item">
+            <span class="detail-name">中文字符</span>
+            <span class="detail-value" id="chinese-count">0</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-name">英文单词</span>
+            <span class="detail-value" id="english-count">0</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-name">数字</span>
+            <span class="detail-value" id="number-count">0</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-name">标点符号</span>
+            <span class="detail-value" id="punctuation-count">0</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-name">空格</span>
+            <span class="detail-value" id="space-count">0</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-name">不含空格字符</span>
+            <span class="detail-value" id="no-space-count">0</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 关键词分析 -->
+      <div class="keyword-section" id="keyword-section" style="display: none;">
+        <div class="keyword-title">高频词汇（出现3次以上）</div>
+        <div class="keyword-list" id="keyword-list"></div>
+      </div>
+    </div>
+  </main>
+
+  <!-- 页脚 -->
+  <footer>
+    <p>🐙 Octopus | 一个大脑，多条触手</p>
+  </footer>
+
+  <!-- 提示 -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // 实时统计
+    document.getElementById('text-input').addEventListener('input', updateStats);
+    document.getElementById('limit-input').addEventListener('input', updateStats);
+
+    function updateStats() {
+      const text = document.getElementById('text-input').value;
+      const limit = parseInt(document.getElementById('limit-input').value) || 0;
+
+      // 基础统计
+      const wordCount = countWords(text);
+      const charCount = text.length;
+      const paragraphCount = text.split(/\n\s*\n/).filter(p => p.trim()).length || (text.trim() ? 1 : 0);
+      const lineCount = text.split('\n').length;
+
+      // 更新显示
+      animateNumber('word-count', wordCount);
+      animateNumber('char-count', charCount);
+      animateNumber('paragraph-count', paragraphCount);
+      animateNumber('line-count', lineCount);
+
+      // 阅读时间
+      const readingTime = Math.ceil(wordCount / 300); // 假设每分钟300字
+      const readingTimeEl = document.getElementById('reading-time');
+      if (wordCount > 0) {
+        readingTimeEl.style.display = 'block';
+        let timeText;
+        if (readingTime < 1) {
+          timeText = '少于 1 分钟';
+        } else if (readingTime < 60) {
+          timeText = readingTime + ' 分钟';
+        } else {
+          timeText = Math.floor(readingTime / 60) + ' 小时 ' + (readingTime % 60) + ' 分钟';
+        }
+        document.getElementById('reading-value').textContent = timeText;
+      } else {
+        readingTimeEl.style.display = 'none';
+      }
+
+      // 详细统计
+      const chineseCount = (text.match(/[\u4e00-\u9fa5]/g) || []).length;
+      const englishCount = (text.match(/[a-zA-Z]+/g) || []).length;
+      const numberCount = (text.match(/[0-9]/g) || []).length;
+      const punctuationCount = (text.match(/[，。？！；：""''（）【】《》、,.?!;:\"'()\[\]<>]/g) || []).length;
+      const spaceCount = (text.match(/\s/g) || []).length;
+      const noSpaceCount = charCount - spaceCount;
+
+      document.getElementById('chinese-count').textContent = chineseCount;
+      document.getElementById('english-count').textContent = englishCount;
+      document.getElementById('number-count').textContent = numberCount;
+      document.getElementById('punctuation-count').textContent = punctuationCount;
+      document.getElementById('space-count').textContent = spaceCount;
+      document.getElementById('no-space-count').textContent = noSpaceCount;
+
+      const detailStats = document.getElementById('detail-stats');
+      if (charCount > 0) {
+        detailStats.style.display = 'block';
+      } else {
+        detailStats.style.display = 'none';
+      }
+
+      // 字数限制进度
+      if (limit > 0) {
+        const progress = Math.min((wordCount / limit) * 100, 100);
+        document.getElementById('progress-bar').style.display = 'block';
+        document.getElementById('progress-fill').style.width = progress + '%';
+        
+        const statusEl = document.getElementById('limit-status');
+        if (wordCount <= limit) {
+          statusEl.textContent = `${wordCount}/${limit} (${Math.floor(progress)}%)`;
+          statusEl.className = 'limit-status ok';
+        } else {
+          statusEl.textContent = `超出 ${wordCount - limit} 字`;
+          statusEl.className = 'limit-status over';
+        }
+      } else {
+        document.getElementById('progress-bar').style.display = 'none';
+        document.getElementById('limit-status').textContent = '';
+      }
+
+      // 关键词分析
+      analyzeKeywords(text);
+    }
+
+    // 计算字数（中文+英文单词）
+    function countWords(text) {
+      const chinese = (text.match(/[\u4e00-\u9fa5]/g) || []).length;
+      const english = (text.match(/[a-zA-Z]+/g) || []).length;
+      return chinese + english;
+    }
+
+    // 关键词分析
+    function analyzeKeywords(text) {
+      if (!text.trim()) {
+        document.getElementById('keyword-section').style.display = 'none';
+        return;
+      }
+
+      // 提取中文词汇（简单分词：连续2-4个中文字符）
+      const words = [];
+      const chineseWords = text.match(/[\u4e00-\u9fa5]{2,4}/g) || [];
+      const englishWords = text.match(/[a-zA-Z]{3,}/g) || [];
+      
+      words.push(...chineseWords, ...englishWords);
+
+      // 统计词频
+      const wordCount = {};
+      words.forEach(word => {
+        wordCount[word] = (wordCount[word] || 0) + 1;
+      });
+
+      // 筛选高频词（出现3次以上）
+      const keywords = Object.entries(wordCount)
+        .filter(([word, count]) => count >= 3 && word.length >= 2)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 10);
+
+      const keywordSection = document.getElementById('keyword-section');
+      const keywordList = document.getElementById('keyword-list');
+
+      if (keywords.length > 0) {
+        keywordSection.style.display = 'block';
+        keywordList.innerHTML = keywords.map(([word, count]) => `
+          <span class="keyword-tag">
+            ${word}
+            <span class="keyword-count">${count}</span>
+          </span>
+        `).join('');
+      } else {
+        keywordSection.style.display = 'none';
+      }
+    }
+
+    // 数字动画
+    function animateNumber(id, target) {
+      const el = document.getElementById(id);
+      const current = parseInt(el.textContent) || 0;
+      if (current === target) return;
+      
+      el.textContent = target;
+    }
+
+    // 粘贴文本
+    async function pasteText() {
+      try {
+        const text = await navigator.clipboard.readText();
+        document.getElementById('text-input').value = text;
+        updateStats();
+        showToast('已粘贴');
+      } catch (e) {
+        showToast('无法读取剪贴板', 'error');
+      }
+    }
+
+    // 复制文本
+    function copyText() {
+      const text = document.getElementById('text-input').value;
+      if (!text) {
+        showToast('没有可复制的内容', 'error');
+        return;
+      }
+      navigator.clipboard.writeText(text).then(() => {
+        showToast('已复制到剪贴板');
+      });
+    }
+
+    // 清空文本
+    function clearText() {
+      document.getElementById('text-input').value = '';
+      updateStats();
+      showToast('已清空');
+    }
+
+    // 加载示例
+    function loadSample() {
+      const sample = `Octopus 是一个高效的小工具集合网站。
+
+它就像章鱼一样，拥有一个核心大脑，统筹无数灵活触手，同时处理各类琐碎事务。
+
+Octopus 的设计理念是简洁、实用、高效。所有工具都是纯前端实现，数据不上传服务器，充分保护用户隐私。
+
+目前已上线的工具包括：
+1. 二维码生成器 - 快速生成自定义二维码
+2. 密码生成器 - 生成强密码，支持强度检测
+3. JSON 格式化 - 美化、压缩、验证 JSON
+4. Base64 工具 - 文字和图片的编码解码
+5. 图片压缩 - 本地压缩图片文件
+
+未来还将推出更多实用工具，敬请期待！`;
+      
+      document.getElementById('text-input').value = sample;
+      updateStats();
+      showToast('已加载示例文本');
+    }
+
+    // 显示提示
+    function showToast(message, type = 'success') {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      if (type === 'error') {
+        toast.style.background = '#e74c3c';
+        toast.style.color = '#fff';
+      } else {
+        toast.style.background = 'var(--accent)';
+        toast.style.color = '#000';
+      }
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2000);
+    }
+  </script>
+</body>
+</html>
