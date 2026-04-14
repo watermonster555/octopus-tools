@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>颜色选择器 - Octopus</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .color-picker-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    @media (max-width: 768px) {
+      .color-picker-container {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* 颜色预览区域 */
+    .color-preview-section {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .color-preview {
+      width: 100%;
+      height: 200px;
+      border-radius: 16px;
+      border: 2px solid var(--border);
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s;
+      cursor: pointer;
+    }
+
+    .color-preview:hover {
+      transform: scale(1.02);
+      box-shadow: 0 10px 30px rgba(0, 212, 170, 0.2);
+    }
+
+    .color-preview::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: 
+        linear-gradient(45deg, #ccc 25%, transparent 25%),
+        linear-gradient(-45deg, #ccc 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #ccc 75%),
+        linear-gradient(-45deg, transparent 75%, #ccc 75%);
+      background-size: 20px 20px;
+      background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+      opacity: 0.3;
+      z-index: 0;
+    }
+
+    .color-preview-inner {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+    }
+
+    .color-value-display {
+      font-size: 1.5rem;
+      font-weight: bold;
+      font-family: 'Courier New', monospace;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      background: rgba(0,0,0,0.2);
+    }
+
+    .color-actions {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    /* 取色器按钮 */
+    .eyedropper-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 1rem 1.5rem;
+      background: linear-gradient(135deg, var(--accent), #00f5d4);
+      color: #000;
+      border: none;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      width: 100%;
+    }
+
+    .eyedropper-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(0, 212, 170, 0.3);
+    }
+
+    .eyedropper-btn:disabled {
+      background: var(--bg-secondary);
+      color: var(--text-secondary);
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .eyedropper-btn .icon {
+      font-size: 1.25rem;
+    }
+
+    /* 颜色输入区域 */
+    .color-inputs-section {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .input-group {
+      background: var(--bg-secondary);
+      border-radius: 12px;
+      padding: 1.25rem;
+      border: 1px solid var(--border);
+    }
+
+    .input-group-title {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .color-input-row {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+    }
+
+    .color-input {
+      flex: 1;
+      padding: 0.75rem 1rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text-primary);
+      font-size: 1rem;
+      font-family: 'Courier New', monospace;
+      outline: none;
+      transition: border-color 0.3s;
+    }
+
+    .color-input:focus {
+      border-color: var(--accent);
+    }
+
+    .color-picker-native {
+      width: 50px;
+      height: 44px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      background: transparent;
+    }
+
+    .color-picker-native::-webkit-color-swatch-wrapper {
+      padding: 0;
+    }
+
+    .color-picker-native::-webkit-color-swatch {
+      border: 2px solid var(--border);
+      border-radius: 8px;
+    }
+
+    .copy-btn {
+      padding: 0.75rem 1rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.3s;
+      font-size: 1rem;
+    }
+
+    .copy-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* RGB 滑块 */
+    .slider-group {
+      margin-top: 1rem;
+    }
+
+    .slider-row {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .slider-label {
+      width: 20px;
+      font-weight: bold;
+      font-size: 0.875rem;
+    }
+
+    .slider-label.r { color: #ff6b6b; }
+    .slider-label.g { color: #51cf66; }
+    .slider-label.b { color: #339af0; }
+
+    .slider {
+      flex: 1;
+      -webkit-appearance: none;
+      height: 8px;
+      border-radius: 4px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #fff;
+      border: 2px solid var(--border);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .slider::-webkit-slider-thumb:hover {
+      transform: scale(1.2);
+      border-color: var(--accent);
+    }
+
+    .slider.r { background: linear-gradient(to right, #000, #ff0000); }
+    .slider.g { background: linear-gradient(to right, #000, #00ff00); }
+    .slider.b { background: linear-gradient(to right, #000, #0000ff); }
+
+    .slider-value {
+      width: 50px;
+      text-align: center;
+      font-family: 'Courier New', monospace;
+      font-size: 0.875rem;
+    }
+
+    /* 颜色历史 */
+    .color-history-section {
+      margin-top: 2rem;
+    }
+
+    .section-title {
+      font-size: 1rem;
+      color: var(--text-secondary);
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .color-history {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .history-item {
+      width: 50px;
+      height: 50px;
+      border-radius: 12px;
+      border: 2px solid var(--border);
+      cursor: pointer;
+      transition: all 0.3s;
+      position: relative;
+    }
+
+    .history-item:hover {
+      transform: scale(1.1);
+      border-color: var(--accent);
+      box-shadow: 0 5px 15px rgba(0, 212, 170, 0.3);
+    }
+
+    .history-item.empty {
+      background: var(--bg-secondary);
+      border-style: dashed;
+      cursor: default;
+    }
+
+    .history-item.empty:hover {
+      transform: none;
+      border-color: var(--border);
+      box-shadow: none;
+    }
+
+    /* 随机颜色 */
+    .random-color-section {
+      margin-top: 2rem;
+      padding: 1.5rem;
+      background: linear-gradient(135deg, rgba(0, 212, 170, 0.1), rgba(0, 245, 212, 0.1));
+      border: 1px solid var(--accent);
+      border-radius: 16px;
+      text-align: center;
+    }
+
+    .random-colors-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .random-color-item {
+      aspect-ratio: 1;
+      border-radius: 12px;
+      border: 2px solid var(--border);
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: bold;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+    }
+
+    .random-color-item:hover {
+      transform: scale(1.05);
+      border-color: var(--accent);
+    }
+
+    /* 提示信息 */
+    .browser-notice {
+      padding: 1rem;
+      background: rgba(255, 193, 7, 0.1);
+      border: 1px solid rgba(255, 193, 7, 0.3);
+      border-radius: 8px;
+      color: #ffc107;
+      font-size: 0.875rem;
+      margin-bottom: 1rem;
+    }
+
+    .browser-notice.hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <!-- 导航栏 -->
+  <nav>
+    <div class="nav-container">
+      <a href="../index.html" class="logo">🐙 Octopus</a>
+      <div class="nav-links">
+        <a href="qr-generator.html">二维码</a>
+        <a href="password-gen.html">密码生成</a>
+        <a href="json-formatter.html">JSON</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- 主体 -->
+  <main class="tool-container">
+    <div class="tool-header">
+      <h1>颜色选择器</h1>
+      <p>颜色格式转换、屏幕取色、随机颜色生成</p>
+    </div>
+
+    <!-- 浏览器兼容性提示 -->
+    <div class="browser-notice" id="browser-notice">
+      💡 提示：您的浏览器不支持屏幕取色功能，请使用 Chrome 或 Edge 浏览器获得完整体验
+    </div>
+
+    <div class="card">
+      <div class="color-picker-container">
+        <!-- 左侧：颜色预览 -->
+        <div class="color-preview-section">
+          <div class="color-preview" id="color-preview" onclick="copyCurrentColor()">
+            <div class="color-preview-inner">
+              <div class="color-value-display" id="color-display">#00D4AA</div>
+              <div style="margin-top: 0.5rem; font-size: 0.875rem; opacity: 0.8;">点击复制</div>
+            </div>
+          </div>
+
+          <button class="eyedropper-btn" id="eyedropper-btn" onclick="openEyeDropper()">
+            <span class="icon">🖱️</span>
+            <span>从屏幕取色</span>
+          </button>
+
+          <div class="color-actions">
+            <button class="btn" onclick="generateRandomColor()">🎲 随机颜色</button>
+            <button class="btn btn-secondary" onclick="copyCurrentColor()">📋 复制 HEX</button>
+          </div>
+        </div>
+
+        <!-- 右侧：颜色输入 -->
+        <div class="color-inputs-section">
+          <!-- HEX 输入 -->
+          <div class="input-group">
+            <div class="input-group-title">HEX</div>
+            <div class="color-input-row">
+              <input type="color" class="color-picker-native" id="native-picker" value="#00d4aa" oninput="updateFromPicker(this.value)">
+              <input type="text" class="color-input" id="hex-input" value="#00D4AA" placeholder="#000000" oninput="updateFromHex(this.value)">
+              <button class="copy-btn" onclick="copyValue('hex-input')" title="复制">📋</button>
+            </div>
+          </div>
+
+          <!-- RGB 输入 -->
+          <div class="input-group">
+            <div class="input-group-title">RGB</div>
+            <div class="color-input-row">
+              <input type="text" class="color-input" id="rgb-input" value="rgb(0, 212, 170)" placeholder="rgb(0, 0, 0)" oninput="updateFromRgb(this.value)">
+              <button class="copy-btn" onclick="copyValue('rgb-input')" title="复制">📋</button>
+            </div>
+            <div class="slider-group">
+              <div class="slider-row">
+                <span class="slider-label r">R</span>
+                <input type="range" class="slider r" id="slider-r" min="0" max="255" value="0" oninput="updateFromSliders()">
+                <span class="slider-value" id="value-r">0</span>
+              </div>
+              <div class="slider-row">
+                <span class="slider-label g">G</span>
+                <input type="range" class="slider g" id="slider-g" min="0" max="255" value="212" oninput="updateFromSliders()">
+                <span class="slider-value" id="value-g">212</span>
+              </div>
+              <div class="slider-row">
+                <span class="slider-label b">B</span>
+                <input type="range" class="slider b" id="slider-b" min="0" max="255" value="170" oninput="updateFromSliders()">
+                <span class="slider-value" id="value-b">170</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- HSL 输入 -->
+          <div class="input-group">
+            <div class="input-group-title">HSL</div>
+            <div class="color-input-row">
+              <input type="text" class="color-input" id="hsl-input" value="hsl(165, 100%, 42%)" placeholder="hsl(0, 0%, 0%)" oninput="updateFromHsl(this.value)">
+              <button class="copy-btn" onclick="copyValue('hsl-input')" title="复制">📋</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 颜色历史 -->
+      <div class="color-history-section">
+        <div class="section-title">
+          <span>🕐 最近使用</span>
+          <button class="btn btn-secondary" style="padding: 0.25rem 0.75rem; font-size: 0.75rem;" onclick="clearHistory()">清空</button>
+        </div>
+        <div class="color-history" id="color-history">
+          <div class="history-item empty"></div>
+          <div class="history-item empty"></div>
+          <div class="history-item empty"></div>
+          <div class="history-item empty"></div>
+          <div class="history-item empty"></div>
+          <div class="history-item empty"></div>
+          <div class="history-item empty"></div>
+          <div class="history-item empty"></div>
+        </div>
+      </div>
+
+      <!-- 随机颜色推荐 -->
+      <div class="random-color-section">
+        <div class="section-title" style="justify-content: center;">
+          <span>🎨 随机颜色推荐</span>
+        </div>
+        <div class="random-colors-grid" id="random-colors">
+          <!-- 动态生成 -->
+        </div>
+        <button class="btn" style="margin-top: 1rem;" onclick="generateRandomPalette()">🔄 换一组</button>
+      </div>
+    </div>
+  </main>
+
+  <!-- 页脚 -->
+  <footer>
+    <p>🐙 Octopus | 一个大脑，多条触手</p>
+    <div style="margin: 0.5rem 0;">
+      <a href="../about.html" style="color: var(--text-secondary); text-decoration: none; margin: 0 0.5rem; font-size: 0.8rem;">关于我们</a>
+      <a href="../privacy.html" style="color: var(--text-secondary); text-decoration: none; margin: 0 0.5rem; font-size: 0.8rem;">隐私政策</a>
+      <a href="../terms.html" style="color: var(--text-secondary); text-decoration: none; margin: 0 0.5rem; font-size: 0.8rem;">用户协议</a>
+    </div>
+    <p style="font-size: 0.75rem; color: var(--text-secondary); opacity: 0.7;">© 2026 Octopus</p>
+  </footer>
+
+  <!-- 提示 -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // 当前颜色状态
+    let currentColor = { r: 0, g: 212, b: 170 };
+    let colorHistory = JSON.parse(localStorage.getItem('colorHistory') || '[]');
+
+    // 初始化
+    document.addEventListener('DOMContentLoaded', () => {
+      checkEyeDropperSupport();
+      updateUI();
+      renderHistory();
+      generateRandomPalette();
+    });
+
+    // 检查 EyeDropper API 支持
+    function checkEyeDropperSupport() {
+      const notice = document.getElementById('browser-notice');
+      const btn = document.getElementById('eyedropper-btn');
+      
+      if (!window.EyeDropper) {
+        notice.classList.remove('hidden');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="icon">❌</span><span>浏览器不支持</span>';
+      } else {
+        notice.classList.add('hidden');
+      }
+    }
+
+    // 打开取色器
+    async function openEyeDropper() {
+      if (!window.EyeDropper) {
+        showToast('您的浏览器不支持屏幕取色', 'error');
+        return;
+      }
+
+      try {
+        const eyeDropper = new EyeDropper();
+        const result = await eyeDropper.open();
+        updateFromHex(result.sRGBHex);
+        showToast('取色成功！');
+      } catch (e) {
+        // 用户取消取色
+      }
+    }
+
+    // 从 HEX 更新
+    function updateFromHex(hex) {
+      hex = hex.trim();
+      if (!/^#[0-9A-Fa-f]{6}$/.test(hex)) return;
+      
+      const rgb = hexToRgb(hex);
+      if (rgb) {
+        currentColor = rgb;
+        addToHistory(hex);
+        updateUI();
+      }
+    }
+
+    // 从 RGB 输入更新
+    function updateFromRgb(rgbStr) {
+      const match = rgbStr.match(/rgb\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)/);
+      if (match) {
+        currentColor = {
+          r: parseInt(match[1]),
+          g: parseInt(match[2]),
+          b: parseInt(match[3])
+        };
+        updateUI(false);
+      }
+    }
+
+    // 从 HSL 输入更新
+    function updateFromHsl(hslStr) {
+      const match = hslStr.match(/hsl\(\s*(\d+)\s*,\s*(\d+)%?\s*,\s*(\d+)%?\s*\)/);
+      if (match) {
+        const rgb = hslToRgb(parseInt(match[1]), parseInt(match[2]), parseInt(match[3]));
+        currentColor = rgb;
+        updateUI(false);
+      }
+    }
+
+    // 从滑块更新
+    function updateFromSliders() {
+      currentColor = {
+        r: parseInt(document.getElementById('slider-r').value),
+        g: parseInt(document.getElementById('slider-g').value),
+        b: parseInt(document.getElementById('slider-b').value)
+      };
+      updateUI(false);
+    }
+
+    // 从原生颜色选择器更新
+    function updateFromPicker(value) {
+      updateFromHex(value);
+    }
+
+    // 更新 UI
+    function updateUI(updateSliders = true) {
+      const hex = rgbToHex(currentColor.r, currentColor.g, currentColor.b);
+      const rgb = `rgb(${currentColor.r}, ${currentColor.g}, ${currentColor.b})`;
+      const hsl = rgbToHsl(currentColor.r, currentColor.g, currentColor.b);
+
+      // 更新预览
+      document.getElementById('color-preview').style.backgroundColor = hex;
+      document.getElementById('color-display').textContent = hex.toUpperCase();
+      
+      // 更新输入框
+      document.getElementById('hex-input').value = hex.toUpperCase();
+      document.getElementById('native-picker').value = hex;
+      document.getElementById('rgb-input').value = rgb;
+      document.getElementById('hsl-input').value = hsl;
+
+      // 更新滑块
+      if (updateSliders) {
+        document.getElementById('slider-r').value = currentColor.r;
+        document.getElementById('slider-g').value = currentColor.g;
+        document.getElementById('slider-b').value = currentColor.b;
+      }
+
+      // 更新滑块数值显示
+      document.getElementById('value-r').textContent = currentColor.r;
+      document.getElementById('value-g').textContent = currentColor.g;
+      document.getElementById('value-b').textContent = currentColor.b;
+
+      // 根据背景色调整文字颜色
+      const brightness = (currentColor.r * 299 + currentColor.g * 587 + currentColor.b * 114) / 1000;
+      const textColor = brightness > 128 ? '#000' : '#fff';
+      document.getElementById('color-display').style.color = textColor;
+    }
+
+    // 生成随机颜色
+    function generateRandomColor() {
+      currentColor = {
+        r: Math.floor(Math.random() * 256),
+        g: Math.floor(Math.random() * 256),
+        b: Math.floor(Math.random() * 256)
+      };
+      addToHistory(rgbToHex(currentColor.r, currentColor.g, currentColor.b));
+      updateUI();
+      showToast('已生成随机颜色！');
+    }
+
+    // 生成随机调色板
+    function generateRandomPalette() {
+      const container = document.getElementById('random-colors');
+      const colors = [];
+      
+      // 生成 8 个随机颜色
+      for (let i = 0; i < 8; i++) {
+        const r = Math.floor(Math.random() * 256);
+        const g = Math.floor(Math.random() * 256);
+        const b = Math.floor(Math.random() * 256);
+        const hex = rgbToHex(r, g, b);
+        colors.push({ r, g, b, hex });
+      }
+
+      container.innerHTML = colors.map(c => {
+        const brightness = (c.r * 299 + c.g * 587 + c.b * 114) / 1000;
+        const textColor = brightness > 128 ? '#000' : '#fff';
+        return `<div class="random-color-item" style="background-color: ${c.hex}; color: ${textColor};" onclick="applyColor('${c.hex}')" title="点击使用">${c.hex.toUpperCase()}</div>`;
+      }).join('');
+    }
+
+    // 应用颜色
+    function applyColor(hex) {
+      updateFromHex(hex);
+      showToast('已应用颜色！');
+    }
+
+    // 添加到历史记录
+    function addToHistory(hex) {
+      // 去重并限制数量
+      colorHistory = colorHistory.filter(c => c !== hex);
+      colorHistory.unshift(hex);
+      if (colorHistory.length > 8) {
+        colorHistory = colorHistory.slice(0, 8);
+      }
+      localStorage.setItem('colorHistory', JSON.stringify(colorHistory));
+      renderHistory();
+    }
+
+    // 渲染历史记录
+    function renderHistory() {
+      const container = document.getElementById('color-history');
+      
+      if (colorHistory.length === 0) {
+        container.innerHTML = Array(8).fill('<div class="history-item empty"></div>').join('');
+        return;
+      }
+
+      const items = colorHistory.map(hex => 
+        `<div class="history-item" style="background-color: ${hex};" onclick="applyColor('${hex}')" title="${hex.toUpperCase()}"></div>`
+      );
+      
+      // 填充空位
+      while (items.length < 8) {
+        items.push('<div class="history-item empty"></div>');
+      }
+      
+      container.innerHTML = items.join('');
+    }
+
+    // 清空历史
+    function clearHistory() {
+      colorHistory = [];
+      localStorage.removeItem('colorHistory');
+      renderHistory();
+      showToast('历史记录已清空');
+    }
+
+    // 复制当前颜色
+    function copyCurrentColor() {
+      const hex = rgbToHex(currentColor.r, currentColor.g, currentColor.b);
+      navigator.clipboard.writeText(hex.toUpperCase()).then(() => {
+        showToast(`已复制 ${hex.toUpperCase()}`);
+      });
+    }
+
+    // 复制输入框值
+    function copyValue(inputId) {
+      const value = document.getElementById(inputId).value;
+      navigator.clipboard.writeText(value).then(() => {
+        showToast('已复制到剪贴板');
+      });
+    }
+
+    // 颜色转换函数
+    function rgbToHex(r, g, b) {
+      return '#' + [r, g, b].map(x => {
+        const hex = x.toString(16);
+        return hex.length === 1 ? '0' + hex : hex;
+      }).join('');
+    }
+
+    function hexToRgb(hex) {
+      const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+      return result ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16)
+      } : null;
+    }
+
+    function rgbToHsl(r, g, b) {
+      r /= 255;
+      g /= 255;
+      b /= 255;
+      
+      const max = Math.max(r, g, b);
+      const min = Math.min(r, g, b);
+      let h, s, l = (max + min) / 2;
+
+      if (max === min) {
+        h = s = 0;
+      } else {
+        const d = max - min;
+        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+        switch (max) {
+          case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+          case g: h = (b - r) / d + 2; break;
+          case b: h = (r - g) / d + 4; break;
+        }
+        h /= 6;
+      }
+
+      return `hsl(${Math.round(h * 360)}, ${Math.round(s * 100)}%, ${Math.round(l * 100)}%)`;
+    }
+
+    function hslToRgb(h, s, l) {
+      h /= 360;
+      s /= 100;
+      l /= 100;
+      
+      let r, g, b;
+      
+      if (s === 0) {
+        r = g = b = l;
+      } else {
+        const hue2rgb = (p, q, t) => {
+          if (t < 0) t += 1;
+          if (t > 1) t -= 1;
+          if (t < 1/6) return p + (q - p) * 6 * t;
+          if (t < 1/2) return q;
+          if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+          return p;
+        };
+        
+        const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+        const p = 2 * l - q;
+        r = hue2rgb(p, q, h + 1/3);
+        g = hue2rgb(p, q, h);
+        b = hue2rgb(p, q, h - 1/3);
+      }
+      
+      return {
+        r: Math.round(r * 255),
+        g: Math.round(g * 255),
+        b: Math.round(b * 255)
+      };
+    }
+
+    // 显示提示
+    function showToast(message, type = 'success') {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      if (type === 'error') {
+        toast.style.background = '#e74c3c';
+        toast.style.color = '#fff';
+      } else {
+        toast.style.background = 'var(--accent)';
+        toast.style.color = '#000';
+      }
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2000);
+    }
+  </script>
+</body>
+</html>
