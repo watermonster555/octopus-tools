@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>时间戳转换 - Octopus</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .timestamp-container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    /* 当前时间卡片 */
+    .current-time-card {
+      background: linear-gradient(135deg, rgba(0, 212, 170, 0.1), rgba(0, 245, 212, 0.1));
+      border: 1px solid var(--accent);
+      border-radius: 16px;
+      padding: 2rem;
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .current-label {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.5rem;
+    }
+
+    .current-timestamp {
+      font-size: 3rem;
+      font-weight: bold;
+      color: var(--accent);
+      font-family: 'Courier New', monospace;
+      margin-bottom: 0.5rem;
+    }
+
+    .current-datetime {
+      font-size: 1.25rem;
+      color: var(--text-primary);
+      margin-bottom: 1rem;
+    }
+
+    .refresh-btn {
+      padding: 0.5rem 1rem;
+      background: var(--accent);
+      color: #000;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.875rem;
+      transition: all 0.3s;
+    }
+
+    .refresh-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0, 212, 170, 0.3);
+    }
+
+    /* 转换区域 */
+    .convert-section {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 1.5rem;
+      align-items: start;
+      margin-bottom: 2rem;
+    }
+
+    @media (max-width: 768px) {
+      .convert-section {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .convert-panel {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+    }
+
+    .panel-title {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      margin-bottom: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .input-group {
+      margin-bottom: 1rem;
+    }
+
+    .input-label {
+      display: block;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.5rem;
+    }
+
+    .time-input {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text-primary);
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.3s;
+    }
+
+    .time-input:focus {
+      border-color: var(--accent);
+    }
+
+    .time-input.timestamp {
+      font-family: 'Courier New', monospace;
+    }
+
+    .unit-select {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text-primary);
+      font-size: 1rem;
+      outline: none;
+      cursor: pointer;
+    }
+
+    /* 中间箭头 */
+    .convert-arrow {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding-top: 2rem;
+    }
+
+    @media (max-width: 768px) {
+      .convert-arrow {
+        padding: 0;
+        transform: rotate(90deg);
+      }
+    }
+
+    .arrow-icon {
+      font-size: 2rem;
+      color: var(--accent);
+    }
+
+    .convert-btn {
+      margin-top: 1rem;
+      padding: 0.75rem 1.5rem;
+      background: var(--accent);
+      color: #000;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+
+    .convert-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0, 212, 170, 0.3);
+    }
+
+    /* 快捷操作 */
+    .quick-actions {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 2rem;
+    }
+
+    .quick-btn {
+      padding: 0.5rem 1rem;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.3s;
+      font-size: 0.875rem;
+    }
+
+    .quick-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* 常用时间戳 */
+    .common-timestamps {
+      margin-top: 2rem;
+    }
+
+    .section-title {
+      font-size: 1rem;
+      color: var(--text-secondary);
+      margin-bottom: 1rem;
+    }
+
+    .timestamp-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+
+    .timestamp-item {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .timestamp-item:hover {
+      border-color: var(--accent);
+      transform: translateY(-2px);
+    }
+
+    .timestamp-label {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.5rem;
+    }
+
+    .timestamp-value {
+      font-family: 'Courier New', monospace;
+      font-size: 1rem;
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .timestamp-date {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      margin-top: 0.25rem;
+    }
+
+    /* 时区选择 */
+    .timezone-section {
+      margin-top: 1.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+    }
+  </style>
+</head>
+<body>
+  <!-- 导航栏 -->
+  <nav>
+    <div class="nav-container">
+      <a href="../index.html" class="logo">🐙 Octopus</a>
+      <div class="nav-links">
+        <a href="qr-generator.html">二维码</a>
+        <a href="password-gen.html">密码生成</a>
+        <a href="json-formatter.html">JSON</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- 主体 -->
+  <main class="tool-container">
+    <div class="tool-header">
+      <h1>时间戳转换</h1>
+      <p>Unix 时间戳与日期时间互转，支持毫秒/秒级</p>
+    </div>
+
+    <div class="timestamp-container">
+      <!-- 当前时间 -->
+      <div class="current-time-card">
+        <div class="current-label">当前 Unix 时间戳（秒）</div>
+        <div class="current-timestamp" id="current-timestamp">0</div>
+        <div class="current-datetime" id="current-datetime">-</div>
+        <button class="refresh-btn" onclick="refreshCurrentTime()">🔄 刷新</button>
+      </div>
+
+      <!-- 快捷操作 -->
+      <div class="quick-actions">
+        <button class="quick-btn" onclick="setNow()">📍 当前时间</button>
+        <button class="quick-btn" onclick="setTodayStart()">🌅 今天零点</button>
+        <button class="quick-btn" onclick="setTodayEnd()">🌙 今天结束</button>
+        <button class="quick-btn" onclick="setYearStart()">📅 年初</button>
+        <button class="quick-btn" onclick="clearAll()">🗑️ 清空</button>
+      </div>
+
+      <!-- 转换区域 -->
+      <div class="convert-section">
+        <!-- 时间戳转日期 -->
+        <div class="convert-panel">
+          <div class="panel-title">⏱️ 时间戳 → 日期</div>
+          <div class="input-group">
+            <label class="input-label">时间戳</label>
+            <input type="text" class="time-input timestamp" id="ts-input" placeholder="1715678901" oninput="convertTimestamp()">
+          </div>
+          <div class="input-group">
+            <label class="input-label">单位</label>
+            <select class="unit-select" id="ts-unit" onchange="convertTimestamp()">
+              <option value="s">秒 (s)</option>
+              <option value="ms">毫秒 (ms)</option>
+            </select>
+          </div>
+          <div class="input-group">
+            <label class="input-label">转换结果</label>
+            <input type="text" class="time-input" id="ts-result" readonly placeholder="2024-05-14 12:34:56">
+          </div>
+          <button class="btn" style="width: 100%; margin-top: 0.5rem;" onclick="copyResult('ts-result')">📋 复制结果</button>
+        </div>
+
+        <!-- 中间箭头 -->
+        <div class="convert-arrow">
+          <div class="arrow-icon">⇄</div>
+        </div>
+
+        <!-- 日期转时间戳 -->
+        <div class="convert-panel">
+          <div class="panel-title">📅 日期 → 时间戳</div>
+          <div class="input-group">
+            <label class="input-label">日期时间</label>
+            <input type="datetime-local" class="time-input" id="dt-input" onchange="convertDateTime()">
+          </div>
+          <div class="input-group">
+            <label class="input-label">输出单位</label>
+            <select class="unit-select" id="dt-unit" onchange="convertDateTime()">
+              <option value="s">秒 (s)</option>
+              <option value="ms" selected>毫秒 (ms)</option>
+            </select>
+          </div>
+          <div class="input-group">
+            <label class="input-label">转换结果</label>
+            <input type="text" class="time-input timestamp" id="dt-result" readonly placeholder="1715678901000">
+          </div>
+          <button class="btn" style="width: 100%; margin-top: 0.5rem;" onclick="copyResult('dt-result')">📋 复制结果</button>
+        </div>
+      </div>
+
+      <!-- 常用时间戳 -->
+      <div class="common-timestamps">
+        <div class="section-title">📚 常用时间戳参考</div>
+        <div class="timestamp-grid" id="common-grid">
+          <!-- 动态生成 -->
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- 页脚 -->
+  <footer>
+    <p>🐙 Octopus | 一个大脑，多条触手</p>
+    <div style="margin: 0.5rem 0;">
+      <a href="../about.html" style="color: var(--text-secondary); text-decoration: none; margin: 0 0.5rem; font-size: 0.8rem;">关于我们</a>
+      <a href="../privacy.html" style="color: var(--text-secondary); text-decoration: none; margin: 0 0.5rem; font-size: 0.8rem;">隐私政策</a>
+      <a href="../terms.html" style="color: var(--text-secondary); text-decoration: none; margin: 0 0.5rem; font-size: 0.8rem;">用户协议</a>
+    </div>
+    <p style="font-size: 0.75rem; color: var(--text-secondary); opacity: 0.7;">© 2026 Octopus</p>
+  </footer>
+
+  <!-- 提示 -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // 刷新当前时间
+    function refreshCurrentTime() {
+      const now = new Date();
+      const timestampS = Math.floor(now.getTime() / 1000);
+      const timestampMs = now.getTime();
+      
+      document.getElementById('current-timestamp').textContent = timestampS;
+      document.getElementById('current-datetime').textContent = formatDateTime(now);
+    }
+
+    // 格式化日期时间
+    function formatDateTime(date) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      const hour = String(date.getHours()).padStart(2, '0');
+      const minute = String(date.getMinutes()).padStart(2, '0');
+      const second = String(date.getSeconds()).padStart(2, '0');
+      
+      return `${year}-${month}-${day} ${hour}:${minute}:${second}`;
+    }
+
+    // 时间戳转日期
+    function convertTimestamp() {
+      const input = document.getElementById('ts-input').value.trim();
+      const unit = document.getElementById('ts-unit').value;
+      
+      if (!input || isNaN(input)) {
+        document.getElementById('ts-result').value = '';
+        return;
+      }
+      
+      let timestamp = parseInt(input);
+      if (unit === 's') {
+        timestamp *= 1000;
+      }
+      
+      const date = new Date(timestamp);
+      if (isNaN(date.getTime())) {
+        document.getElementById('ts-result').value = '无效的时间戳';
+        return;
+      }
+      
+      document.getElementById('ts-result').value = formatDateTime(date);
+    }
+
+    // 日期转时间戳
+    function convertDateTime() {
+      const input = document.getElementById('dt-input').value;
+      const unit = document.getElementById('dt-unit').value;
+      
+      if (!input) {
+        document.getElementById('dt-result').value = '';
+        return;
+      }
+      
+      const date = new Date(input);
+      if (isNaN(date.getTime())) {
+        document.getElementById('dt-result').value = '无效的日期';
+        return;
+      }
+      
+      let timestamp = date.getTime();
+      if (unit === 's') {
+        timestamp = Math.floor(timestamp / 1000);
+      }
+      
+      document.getElementById('dt-result').value = timestamp;
+    }
+
+    // 快捷设置
+    function setNow() {
+      const now = new Date();
+      document.getElementById('ts-input').value = Math.floor(now.getTime() / 1000);
+      document.getElementById('ts-unit').value = 's';
+      convertTimestamp();
+    }
+
+    function setTodayStart() {
+      const now = new Date();
+      const start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
+      document.getElementById('ts-input').value = Math.floor(start.getTime() / 1000);
+      document.getElementById('ts-unit').value = 's';
+      convertTimestamp();
+    }
+
+    function setTodayEnd() {
+      const now = new Date();
+      const end = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+      document.getElementById('ts-input').value = Math.floor(end.getTime() / 1000);
+      document.getElementById('ts-unit').value = 's';
+      convertTimestamp();
+    }
+
+    function setYearStart() {
+      const now = new Date();
+      const start = new Date(now.getFullYear(), 0, 1, 0, 0, 0);
+      document.getElementById('ts-input').value = Math.floor(start.getTime() / 1000);
+      document.getElementById('ts-unit').value = 's';
+      convertTimestamp();
+    }
+
+    function clearAll() {
+      document.getElementById('ts-input').value = '';
+      document.getElementById('ts-result').value = '';
+      document.getElementById('dt-input').value = '';
+      document.getElementById('dt-result').value = '';
+    }
+
+    // 复制结果
+    function copyResult(elementId) {
+      const value = document.getElementById(elementId).value;
+      if (!value) {
+        showToast('没有可复制的内容', 'error');
+        return;
+      }
+      navigator.clipboard.writeText(value).then(() => {
+        showToast('已复制到剪贴板');
+      });
+    }
+
+    // 生成常用时间戳
+    function generateCommonTimestamps() {
+      const now = new Date();
+      const items = [
+        { label: '1 分钟前', offset: -60 * 1000 },
+        { label: '5 分钟前', offset: -5 * 60 * 1000 },
+        { label: '1 小时前', offset: -60 * 60 * 1000 },
+        { label: '昨天', offset: -24 * 60 * 60 * 1000 },
+        { label: '7 天前', offset: -7 * 24 * 60 * 60 * 1000 },
+        { label: '30 天前', offset: -30 * 24 * 60 * 60 * 1000 }
+      ];
+
+      const grid = document.getElementById('common-grid');
+      grid.innerHTML = items.map(item => {
+        const date = new Date(now.getTime() + item.offset);
+        const timestamp = Math.floor(date.getTime() / 1000);
+        return `
+          <div class="timestamp-item" onclick="useTimestamp(${timestamp})">
+            <div class="timestamp-label">${item.label}</div>
+            <div class="timestamp-value">${timestamp}</div>
+            <div class="timestamp-date">${formatDateTime(date)}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // 使用常用时间戳
+    function useTimestamp(timestamp) {
+      document.getElementById('ts-input').value = timestamp;
+      document.getElementById('ts-unit').value = 's';
+      convertTimestamp();
+      showToast('已填入时间戳');
+    }
+
+    // 显示提示
+    function showToast(message, type = 'success') {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      if (type === 'error') {
+        toast.style.background = '#e74c3c';
+        toast.style.color = '#fff';
+      } else {
+        toast.style.background = 'var(--accent)';
+        toast.style.color = '#000';
+      }
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2000);
+    }
+
+    // 初始化
+    document.addEventListener('DOMContentLoaded', () => {
+      refreshCurrentTime();
+      generateCommonTimestamps();
+      
+      // 每秒更新当前时间
+      setInterval(refreshCurrentTime, 1000);
+    });
+  </script>
+</body>
+</html>

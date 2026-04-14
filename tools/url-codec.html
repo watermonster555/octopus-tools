@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>URL 编解码 - Octopus</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .url-tool-container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    /* 模式切换 */
+    .mode-tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 2rem;
+      justify-content: center;
+    }
+
+    .mode-tab {
+      padding: 0.75rem 1.5rem;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.3s;
+      font-size: 0.9rem;
+    }
+
+    .mode-tab:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .mode-tab.active {
+      background: var(--accent);
+      color: #000;
+      border-color: var(--accent);
+    }
+
+    /* 输入输出区域 */
+    .codec-section {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 1rem;
+      align-items: stretch;
+      margin-bottom: 2rem;
+    }
+
+    @media (max-width: 768px) {
+      .codec-section {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .text-panel {
+      display: flex;
+      flex-direction: column;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem 1rem;
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .panel-title {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+
+    .panel-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .panel-btn {
+      padding: 0.25rem 0.5rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--text-secondary);
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .panel-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .text-area {
+      flex: 1;
+      min-height: 200px;
+      padding: 1rem;
+      background: var(--bg-card);
+      border: none;
+      color: var(--text-primary);
+      font-size: 0.9rem;
+      line-height: 1.6;
+      resize: vertical;
+      outline: none;
+      font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    }
+
+    .text-area::placeholder {
+      color: var(--text-secondary);
+      opacity: 0.5;
+    }
+
+    /* 中间操作区 */
+    .center-actions {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 1rem;
+    }
+
+    @media (max-width: 768px) {
+      .center-actions {
+        flex-direction: row;
+      }
+    }
+
+    .action-btn {
+      padding: 0.75rem 1rem;
+      background: var(--accent);
+      color: #000;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s;
+      white-space: nowrap;
+    }
+
+    .action-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0, 212, 170, 0.3);
+    }
+
+    .swap-btn {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--accent);
+      font-size: 1.25rem;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .swap-btn:hover {
+      background: var(--accent);
+      color: #000;
+      transform: rotate(180deg);
+    }
+
+    /* 选项区域 */
+    .options-section {
+      background: var(--bg-secondary);
+      border-radius: 12px;
+      padding: 1rem 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .options-title {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      margin-bottom: 1rem;
+    }
+
+    .options-grid {
+      display: flex;
+      gap: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .option-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+    }
+
+    .option-item input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+
+    .option-item label {
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+
+    /* 快捷操作 */
+    .quick-section {
+      margin-bottom: 2rem;
+    }
+
+    .section-title {
+      font-size: 1rem;
+      color: var(--text-secondary);
+      margin-bottom: 1rem;
+    }
+
+    .quick-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 1rem;
+    }
+
+    .quick-item {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .quick-item:hover {
+      border-color: var(--accent);
+      transform: translateY(-2px);
+    }
+
+    .quick-label {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.5rem;
+    }
+
+    .quick-value {
+      font-family: 'Consolas', 'Monaco', monospace;
+      font-size: 0.8rem;
+      color: var(--accent);
+      word-break: break-all;
+    }
+
+    /* 字符参考表 */
+    .char-reference {
+      margin-top: 2rem;
+    }
+
+    .reference-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 0.5rem;
+    }
+
+    .reference-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.5rem 0.75rem;
+      background: var(--bg-secondary);
+      border-radius: 8px;
+      font-size: 0.875rem;
+    }
+
+    .ref-char {
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+
+    .ref-encoded {
+      color: var(--accent);
+      font-family: monospace;
+    }
+
+    /* 批量处理 */
+    .batch-section {
+      margin-top: 2rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .batch-input {
+      width: 100%;
+      padding: 1rem;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text-primary);
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+      resize: vertical;
+      min-height: 100px;
+    }
+  </style>
+</head>
+<body>
+  <!-- 导航栏 -->
+  <nav>
+    <div class="nav-container">
+      <a href="../index.html" class="logo">🐙 Octopus</a>
+      <div class="nav-links">
+        <a href="qr-generator.html">二维码</a>
+        <a href="password-gen.html">密码生成</a>
+        <a href="json-formatter.html">JSON</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- 主体 -->
+  <main class="tool-container">
+    <div class="tool-header">
+      <h1>URL 编解码</h1>
+      <p>URL 编码解码、Base64、HTML 实体转换</p>
+    </div>
+
+    <div class="url-tool-container">
+      <!-- 模式切换 -->
+      <div class="mode-tabs">
+        <div class="mode-tab active" onclick="switchMode('url')" data-mode="url">🔗 URL 编码</div>
+        <div class="mode-tab" onclick="switchMode('base64')" data-mode="base64">🔤 Base64</div>
+        <div class="mode-tab" onclick="switchMode('html')" data-mode="html">📄 HTML 实体</div>
+      </div>
+
+      <!-- 编解码区域 -->
+      <div class="codec-section">
+        <div class="text-panel">
+          <div class="panel-header">
+            <span class="panel-title" id="left-title">原始文本</span>
+            <div class="panel-actions">
+              <button class="panel-btn" onclick="pasteText('input')">粘贴</button>
+              <button class="panel-btn" onclick="clearText('input')">清空</button>
+            </div>
+          </div>
+          <textarea class="text-area" id="input-text" placeholder="在此输入要编码/解码的文本..." oninput="autoConvert()"></textarea>
+        </div>
+
+        <div class="center-actions">
+          <button class="action-btn" onclick="encode()">编码 →</button>
+          <button class="swap-btn" onclick="swapTexts()" title="交换">⇄</button>
+          <button class="action-btn" onclick="decode()">← 解码</button>
+        </div>
+
+        <div class="text-panel">
+          <div class="panel-header">
+            <span class="panel-title" id="right-title">编码结果</span>
+            <div class="panel-actions">
+              <button class="panel-btn" onclick="copyOutput()">复制</button>
+              <button class="panel-btn" onclick="clearText('output')">清空</button>
+            </div>
+          </div>
+          <textarea class="text-area" id="output-text" placeholder="编码/解码结果将显示在这里..." readonly></textarea>
+        </div>
+      </div>
+
+      <!-- 选项 -->
+      <div class="options-section">
+        <div class="options-title">⚙️ 选项设置</div>
+        <div class="options-grid">
+          <div class="option-item">
+            <input type="checkbox" id="auto-convert" checked>
+            <label for="auto-convert">实时转换</label>
+          </div>
+          <div class="option-item" id="url-option">
+            <input type="checkbox" id="encode-all">
+            <label for="encode-all">编码所有字符（包括字母数字）</label>
+          </div>
+          <div class="option-item" id="base64-option" style="display: none;">
+            <input type="checkbox" id="url-safe">
+            <label for="url-safe">URL 安全 Base64（+ → -, / → _）</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- 快捷示例 -->
+      <div class="quick-section">
+        <div class="section-title">📚 快捷示例</div>
+        <div class="quick-grid" id="quick-grid">
+          <!-- 动态生成 -->
+        </div>
+      </div>
+
+      <!-- 常用字符参考 -->
+      <div class="char-reference">
+        <div class="section-title">🔤 常用字符编码参考</div>
+        <div class="reference-grid" id="reference-grid">
+          <!-- 动态生成 -->
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- 页脚 -->
+  <footer>
+    <p>🐙 Octopus | 一个大脑，多条触手</p>
+    <div style="margin: 0.5rem 0;">
+      <a href="../about.html" style="color: var(--text-secondary); text-decoration: none; margin: 0 0.5rem; font-size: 0.8rem;">关于我们</a>
+      <a href="../privacy.html" style="color: var(--text-secondary); text-decoration: none; margin: 0 0.5rem; font-size: 0.8rem;">隐私政策</a>
+      <a href="../terms.html" style="color: var(--text-secondary); text-decoration: none; margin: 0 0.5rem; font-size: 0.8rem;">用户协议</a>
+    </div>
+    <p style="font-size: 0.75rem; color: var(--text-secondary); opacity: 0.7;">© 2026 Octopus</p>
+  </footer>
+
+  <!-- 提示 -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+    let currentMode = 'url';
+
+    // 模式切换
+    function switchMode(mode) {
+      currentMode = mode;
+      
+      // 更新标签样式
+      document.querySelectorAll('.mode-tab').forEach(tab => {
+        tab.classList.remove('active');
+        if (tab.dataset.mode === mode) {
+          tab.classList.add('active');
+        }
+      });
+
+      // 更新标题
+      const titles = {
+        url: ['原始文本', 'URL 编码结果'],
+        base64: ['原始文本', 'Base64 编码'],
+        html: ['HTML 代码', '实体编码结果']
+      };
+      document.getElementById('left-title').textContent = titles[mode][0];
+      document.getElementById('right-title').textContent = titles[mode][1];
+
+      // 显示/隐藏选项
+      document.getElementById('url-option').style.display = mode === 'url' ? 'flex' : 'none';
+      document.getElementById('base64-option').style.display = mode === 'base64' ? 'flex' : 'none';
+
+      // 更新示例
+      updateQuickExamples();
+      updateReference();
+
+      // 清空输出
+      document.getElementById('output-text').value = '';
+    }
+
+    // 编码
+    function encode() {
+      const input = document.getElementById('input-text').value;
+      if (!input) return;
+
+      let output = '';
+      try {
+        switch (currentMode) {
+          case 'url':
+            const encodeAll = document.getElementById('encode-all').checked;
+            if (encodeAll) {
+              output = Array.from(input).map(c => '%' + c.charCodeAt(0).toString(16).toUpperCase().padStart(2, '0')).join('');
+            } else {
+              output = encodeURIComponent(input);
+            }
+            break;
+          case 'base64':
+            const urlSafe = document.getElementById('url-safe').checked;
+            output = btoa(unescape(encodeURIComponent(input)));
+            if (urlSafe) {
+              output = output.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+            }
+            break;
+          case 'html':
+            output = input.replace(/[&<>"']/g, char => ({
+              '&': '&amp;',
+              '<': '&lt;',
+              '>': '&gt;',
+              '"': '&quot;',
+              "'": '&#x27;'
+            })[char]);
+            break;
+        }
+        document.getElementById('output-text').value = output;
+      } catch (e) {
+        showToast('编码失败: ' + e.message, 'error');
+      }
+    }
+
+    // 解码
+    function decode() {
+      const input = document.getElementById('input-text').value;
+      if (!input) return;
+
+      let output = '';
+      try {
+        switch (currentMode) {
+          case 'url':
+            output = decodeURIComponent(input);
+            break;
+          case 'base64':
+            let base64 = input;
+            const urlSafe = document.getElementById('url-safe').checked;
+            if (urlSafe) {
+              base64 = base64.replace(/-/g, '+').replace(/_/g, '/');
+              while (base64.length % 4) base64 += '=';
+            }
+            output = decodeURIComponent(escape(atob(base64)));
+            break;
+          case 'html':
+            const textarea = document.createElement('textarea');
+            textarea.innerHTML = input;
+            output = textarea.value;
+            break;
+        }
+        document.getElementById('output-text').value = output;
+      } catch (e) {
+        showToast('解码失败: 输入格式不正确', 'error');
+      }
+    }
+
+    // 自动转换
+    function autoConvert() {
+      if (document.getElementById('auto-convert').checked) {
+        encode();
+      }
+    }
+
+    // 交换文本
+    function swapTexts() {
+      const input = document.getElementById('input-text');
+      const output = document.getElementById('output-text');
+      const temp = input.value;
+      input.value = output.value;
+      output.value = temp;
+    }
+
+    // 粘贴文本
+    async function pasteText(target) {
+      try {
+        const text = await navigator.clipboard.readText();
+        if (target === 'input') {
+          document.getElementById('input-text').value = text;
+          autoConvert();
+        }
+        showToast('已粘贴');
+      } catch (e) {
+        showToast('无法读取剪贴板', 'error');
+      }
+    }
+
+    // 清空文本
+    function clearText(target) {
+      if (target === 'input') {
+        document.getElementById('input-text').value = '';
+      }
+      document.getElementById('output-text').value = '';
+    }
+
+    // 复制输出
+    function copyOutput() {
+      const output = document.getElementById('output-text').value;
+      if (!output) {
+        showToast('没有可复制的内容', 'error');
+        return;
+      }
+      navigator.clipboard.writeText(output).then(() => {
+        showToast('已复制到剪贴板');
+      });
+    }
+
+    // 使用示例
+    function useExample(text) {
+      document.getElementById('input-text').value = text;
+      autoConvert();
+      showToast('已加载示例');
+    }
+
+    // 更新快捷示例
+    function updateQuickExamples() {
+      const examples = {
+        url: [
+          { label: '网址', value: 'https://example.com/search?q=hello world' },
+          { label: '中文', value: '你好世界' },
+          { label: '特殊字符', value: 'a+b=c&d<e>f' },
+          { label: '表情', value: '🐙 Octopus 工具集' }
+        ],
+        base64: [
+          { label: '简单文本', value: 'Hello World' },
+          { label: '中文', value: '你好，世界！' },
+          { label: 'JSON', value: '{"name":"Octopus","tools":12}' },
+          { label: '链接', value: 'https://watermonster555.github.io/octopus-tools/' }
+        ],
+        html: [
+          { label: '标签', value: '<div class="example">Hello</div>' },
+          { label: '属性', value: '<a href="url" title="test">Link</a>' },
+          { label: '脚本', value: '<script>alert("xss")</script>' },
+          { label: '样式', value: '<style>body{color:red}</style>' }
+        ]
+      };
+
+      const grid = document.getElementById('quick-grid');
+      grid.innerHTML = examples[currentMode].map(ex => `
+        <div class="quick-item" onclick="useExample('${ex.value.replace(/'/g, "\\'")}')">
+          <div class="quick-label">${ex.label}</div>
+          <div class="quick-value">${ex.value.substring(0, 30)}${ex.value.length > 30 ? '...' : ''}</div>
+        </div>
+      `).join('');
+    }
+
+    // 更新字符参考
+    function updateReference() {
+      const references = {
+        url: [
+          { char: '空格', encoded: '%20' },
+          { char: '!', encoded: '%21' },
+          { char: '"', encoded: '%22' },
+          { char: '#', encoded: '%23' },
+          { char: '$', encoded: '%24' },
+          { char: '%', encoded: '%25' },
+          { char: '&', encoded: '%26' },
+          { char: "'", encoded: '%27' },
+          { char: '(', encoded: '%28' },
+          { char: ')', encoded: '%29' },
+          { char: '*', encoded: '%2A' },
+          { char: '+', encoded: '%2B' }
+        ],
+        base64: [
+          { char: '0', encoded: 'MA==' },
+          { char: 'A', encoded: 'QQ==' },
+          { char: 'a', encoded: 'YQ==' },
+          { char: '中', encoded: '5Lit' }
+        ],
+        html: [
+          { char: '&', encoded: '&amp;' },
+          { char: '<', encoded: '&lt;' },
+          { char: '>', encoded: '&gt;' },
+          { char: '"', encoded: '&quot;' },
+          { char: "'", encoded: '&#x27;' },
+          { char: '空格', encoded: '&nbsp;' }
+        ]
+      };
+
+      const grid = document.getElementById('reference-grid');
+      const refs = references[currentMode] || references.url;
+      grid.innerHTML = refs.map(ref => `
+        <div class="reference-item">
+          <span class="ref-char">${ref.char}</span>
+          <span class="ref-encoded">${ref.encoded}</span>
+        </div>
+      `).join('');
+    }
+
+    // 显示提示
+    function showToast(message, type = 'success') {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      if (type === 'error') {
+        toast.style.background = '#e74c3c';
+        toast.style.color = '#fff';
+      } else {
+        toast.style.background = 'var(--accent)';
+        toast.style.color = '#000';
+      }
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2000);
+    }
+
+    // 初始化
+    document.addEventListener('DOMContentLoaded', () => {
+      updateQuickExamples();
+      updateReference();
+    });
+  </script>
+</body>
+</html>
