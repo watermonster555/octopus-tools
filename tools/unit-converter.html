@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>单位换算 - Octopus</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .converter-container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    /* 分类标签 */
+    .category-tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .category-tab {
+      padding: 0.75rem 1.5rem;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.3s;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .category-tab:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .category-tab.active {
+      background: var(--accent);
+      color: #000;
+      border-color: var(--accent);
+    }
+
+    /* 换算区域 */
+    .converter-box {
+      background: var(--bg-secondary);
+      border-radius: 16px;
+      padding: 2rem;
+      border: 1px solid var(--border);
+      margin-bottom: 2rem;
+    }
+
+    .converter-row {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 1rem;
+      align-items: end;
+      margin-bottom: 1.5rem;
+    }
+
+    @media (max-width: 600px) {
+      .converter-row {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+      }
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .input-label {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+    }
+
+    .amount-input {
+      padding: 1rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      color: var(--text-primary);
+      font-size: 1.5rem;
+      font-weight: 600;
+      outline: none;
+      transition: border-color 0.3s;
+      width: 100%;
+    }
+
+    .amount-input:focus {
+      border-color: var(--accent);
+    }
+
+    .unit-select {
+      padding: 0.75rem 1rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text-primary);
+      font-size: 1rem;
+      outline: none;
+      cursor: pointer;
+      transition: border-color 0.3s;
+    }
+
+    .unit-select:focus {
+      border-color: var(--accent);
+    }
+
+    /* 交换按钮 */
+    .swap-btn {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--accent);
+      font-size: 1.25rem;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .swap-btn:hover {
+      background: var(--accent);
+      color: #000;
+      transform: rotate(180deg);
+    }
+
+    @media (max-width: 600px) {
+      .swap-btn {
+        width: 100%;
+        border-radius: 12px;
+        transform: rotate(90deg);
+      }
+      .swap-btn:hover {
+        transform: rotate(270deg);
+      }
+    }
+
+    /* 结果展示 */
+    .result-box {
+      background: linear-gradient(135deg, rgba(0, 212, 170, 0.1), rgba(0, 245, 212, 0.1));
+      border: 1px solid var(--accent);
+      border-radius: 12px;
+      padding: 1.5rem;
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .result-value {
+      font-size: 2.5rem;
+      font-weight: bold;
+      color: var(--accent);
+      word-break: break-all;
+    }
+
+    .result-unit {
+      font-size: 1rem;
+      color: var(--text-secondary);
+      margin-top: 0.5rem;
+    }
+
+    .result-formula {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      margin-top: 0.75rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--border);
+    }
+
+    /* 快捷按钮 */
+    .quick-values {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .quick-btn {
+      padding: 0.5rem 1rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.3s;
+      font-size: 0.875rem;
+    }
+
+    .quick-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* 常用换算表 */
+    .common-conversions {
+      margin-top: 2rem;
+    }
+
+    .section-title {
+      font-size: 1rem;
+      color: var(--text-secondary);
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .conversion-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+
+    .conversion-item {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .conversion-item:hover {
+      border-color: var(--accent);
+      transform: translateY(-2px);
+    }
+
+    .conversion-formula {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+    }
+
+    .conversion-equals {
+      font-size: 1.25rem;
+      color: var(--accent);
+      font-weight: bold;
+      margin: 0.5rem 0;
+    }
+
+    /* 复制按钮 */
+    .copy-result-btn {
+      margin-top: 1rem;
+      padding: 0.75rem 1.5rem;
+      background: var(--accent);
+      color: #000;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .copy-result-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0, 212, 170, 0.3);
+    }
+
+    /* 温度特殊样式 */
+    .temp-indicator {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      margin-left: 0.5rem;
+    }
+
+    .temp-cold { background: #339af0; }
+    .temp-cool { background: #51cf66; }
+    .temp-warm { background: #ffd43b; }
+    .temp-hot { background: #ff6b6b; }
+  </style>
+</head>
+<body>
+  <!-- 导航栏 -->
+  <nav>
+    <div class="nav-container">
+      <a href="../index.html" class="logo">🐙 Octopus</a>
+      <div class="nav-links">
+        <a href="qr-generator.html">二维码</a>
+        <a href="password-gen.html">密码生成</a>
+        <a href="json-formatter.html">JSON</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- 主体 -->
+  <main class="tool-container">
+    <div class="tool-header">
+      <h1>单位换算</h1>
+      <p>长度、重量、温度、数据存储等多种单位实时换算</p>
+    </div>
+
+    <div class="converter-container">
+      <!-- 分类标签 -->
+      <div class="category-tabs">
+        <div class="category-tab active" onclick="switchCategory('length')" data-category="length">
+          📏 长度
+        </div>
+        <div class="category-tab" onclick="switchCategory('weight')" data-category="weight">
+          ⚖️ 重量
+        </div>
+        <div class="category-tab" onclick="switchCategory('temperature')" data-category="temperature">
+          🌡️ 温度
+        </div>
+        <div class="category-tab" onclick="switchCategory('data')" data-category="data">
+          💾 存储
+        </div>
+        <div class="category-tab" onclick="switchCategory('area')" data-category="area">
+          📐 面积
+        </div>
+        <div class="category-tab" onclick="switchCategory('volume')" data-category="volume">
+          🥤 体积
+        </div>
+      </div>
+
+      <!-- 换算区域 -->
+      <div class="converter-box">
+        <div class="converter-row">
+          <div class="input-group">
+            <label class="input-label">输入值</label>
+            <input type="number" class="amount-input" id="input-value" value="1" placeholder="输入数值" oninput="convert()">
+            <select class="unit-select" id="from-unit" onchange="convert()">
+              <!-- 动态生成 -->
+            </select>
+          </div>
+
+          <button class="swap-btn" onclick="swapUnits()" title="交换单位">⇄</button>
+
+          <div class="input-group">
+            <label class="input-label">结果</label>
+            <input type="number" class="amount-input" id="output-value" readonly placeholder="换算结果">
+            <select class="unit-select" id="to-unit" onchange="convert()">
+              <!-- 动态生成 -->
+            </select>
+          </div>
+        </div>
+
+        <!-- 结果展示 -->
+        <div class="result-box">
+          <div class="result-value" id="result-display">1</div>
+          <div class="result-unit" id="result-unit">米 = 1 米</div>
+          <div class="result-formula" id="result-formula">1 米 = 1 米</div>
+          <button class="copy-result-btn" onclick="copyResult()">📋 复制结果</button>
+        </div>
+
+        <!-- 快捷输入 -->
+        <div class="quick-values">
+          <span style="color: var(--text-secondary); font-size: 0.875rem;">快捷输入：</span>
+          <button class="quick-btn" onclick="setValue(1)">1</button>
+          <button class="quick-btn" onclick="setValue(10)">10</button>
+          <button class="quick-btn" onclick="setValue(100)">100</button>
+          <button class="quick-btn" onclick="setValue(1000)">1000</button>
+          <button class="quick-btn" onclick="setValue(0.5)">0.5</button>
+          <button class="quick-btn" onclick="setValue(0.1)">0.1</button>
+        </div>
+      </div>
+
+      <!-- 常用换算参考 -->
+      <div class="common-conversions">
+        <div class="section-title">
+          <span>📚 常用换算参考</span>
+        </div>
+        <div class="conversion-grid" id="common-grid">
+          <!-- 动态生成 -->
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- 页脚 -->
+  <footer>
+    <p>🐙 Octopus | 一个大脑，多条触手</p>
+    <div style="margin: 0.5rem 0;">
+      <a href="../about.html" style="color: var(--text-secondary); text-decoration: none; margin: 0 0.5rem; font-size: 0.8rem;">关于我们</a>
+      <a href="../privacy.html" style="color: var(--text-secondary); text-decoration: none; margin: 0 0.5rem; font-size: 0.8rem;">隐私政策</a>
+      <a href="../terms.html" style="color: var(--text-secondary); text-decoration: none; margin: 0 0.5rem; font-size: 0.8rem;">用户协议</a>
+    </div>
+    <p style="font-size: 0.75rem; color: var(--text-secondary); opacity: 0.7;">© 2026 Octopus</p>
+  </footer>
+
+  <!-- 提示 -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // 单位定义
+    const units = {
+      length: {
+        name: '长度',
+        base: 'm',
+        units: {
+          'km': { name: '千米', factor: 1000 },
+          'm': { name: '米', factor: 1 },
+          'dm': { name: '分米', factor: 0.1 },
+          'cm': { name: '厘米', factor: 0.01 },
+          'mm': { name: '毫米', factor: 0.001 },
+          'μm': { name: '微米', factor: 0.000001 },
+          'nm': { name: '纳米', factor: 0.000000001 },
+          'mi': { name: '英里', factor: 1609.344 },
+          'yd': { name: '码', factor: 0.9144 },
+          'ft': { name: '英尺', factor: 0.3048 },
+          'in': { name: '英寸', factor: 0.0254 },
+          'nmi': { name: '海里', factor: 1852 }
+        }
+      },
+      weight: {
+        name: '重量',
+        base: 'kg',
+        units: {
+          't': { name: '吨', factor: 1000 },
+          'kg': { name: '千克', factor: 1 },
+          'g': { name: '克', factor: 0.001 },
+          'mg': { name: '毫克', factor: 0.000001 },
+          'μg': { name: '微克', factor: 0.000000001 },
+          'lb': { name: '磅', factor: 0.45359237 },
+          'oz': { name: '盎司', factor: 0.02834952 },
+          'st': { name: '英石', factor: 6.35029 },
+          'ct': { name: '克拉', factor: 0.0002 }
+        }
+      },
+      temperature: {
+        name: '温度',
+        special: true,
+        units: {
+          'C': { name: '摄氏度' },
+          'F': { name: '华氏度' },
+          'K': { name: '开尔文' }
+        }
+      },
+      data: {
+        name: '数据存储',
+        base: 'B',
+        units: {
+          'B': { name: '字节', factor: 1 },
+          'KB': { name: 'KB', factor: 1024 },
+          'MB': { name: 'MB', factor: 1048576 },
+          'GB': { name: 'GB', factor: 1073741824 },
+          'TB': { name: 'TB', factor: 1099511627776 },
+          'PB': { name: 'PB', factor: 1125899906842624 }
+        }
+      },
+      area: {
+        name: '面积',
+        base: 'm2',
+        units: {
+          'km2': { name: '平方千米', factor: 1000000 },
+          'ha': { name: '公顷', factor: 10000 },
+          'm2': { name: '平方米', factor: 1 },
+          'dm2': { name: '平方分米', factor: 0.01 },
+          'cm2': { name: '平方厘米', factor: 0.0001 },
+          'mm2': { name: '平方毫米', factor: 0.000001 },
+          'acre': { name: '英亩', factor: 4046.86 },
+          'ft2': { name: '平方英尺', factor: 0.092903 },
+          'in2': { name: '平方英寸', factor: 0.00064516 }
+        }
+      },
+      volume: {
+        name: '体积',
+        base: 'L',
+        units: {
+          'm3': { name: '立方米', factor: 1000 },
+          'L': { name: '升', factor: 1 },
+          'dL': { name: '分升', factor: 0.1 },
+          'cL': { name: '厘升', factor: 0.01 },
+          'mL': { name: '毫升', factor: 0.001 },
+          'gal': { name: '加仑(美)', factor: 3.78541 },
+          'qt': { name: '夸脱', factor: 0.946353 },
+          'pt': { name: '品脱', factor: 0.473176 },
+          'cup': { name: '杯', factor: 0.24 },
+          'fl oz': { name: '液盎司', factor: 0.0295735 }
+        }
+      }
+    };
+
+    let currentCategory = 'length';
+
+    // 初始化
+    document.addEventListener('DOMContentLoaded', () => {
+      initCategory(currentCategory);
+    });
+
+    // 切换分类
+    function switchCategory(category) {
+      currentCategory = category;
+      
+      // 更新标签样式
+      document.querySelectorAll('.category-tab').forEach(tab => {
+        tab.classList.remove('active');
+        if (tab.dataset.category === category) {
+          tab.classList.add('active');
+        }
+      });
+
+      initCategory(category);
+    }
+
+    // 初始化分类
+    function initCategory(category) {
+      const data = units[category];
+      const fromSelect = document.getElementById('from-unit');
+      const toSelect = document.getElementById('to-unit');
+
+      // 生成选项
+      let options = '';
+      for (const [key, unit] of Object.entries(data.units)) {
+        options += `<option value="${key}">${unit.name} (${key})</option>`;
+      }
+
+      fromSelect.innerHTML = options;
+      toSelect.innerHTML = options;
+
+      // 设置默认值
+      const unitKeys = Object.keys(data.units);
+      fromSelect.value = unitKeys[0];
+      toSelect.value = unitKeys[1] || unitKeys[0];
+
+      // 设置输入值
+      document.getElementById('input-value').value = 1;
+
+      convert();
+    }
+
+    // 换算
+    function convert() {
+      const inputValue = parseFloat(document.getElementById('input-value').value) || 0;
+      const fromUnit = document.getElementById('from-unit').value;
+      const toUnit = document.getElementById('to-unit').value;
+      const data = units[currentCategory];
+
+      let result;
+      let formula;
+
+      if (currentCategory === 'temperature') {
+        result = convertTemperature(inputValue, fromUnit, toUnit);
+        formula = getTemperatureFormula(fromUnit, toUnit);
+      } else {
+        // 先转换为基准单位，再转换为目标单位
+        const fromFactor = data.units[fromUnit].factor;
+        const toFactor = data.units[toUnit].factor;
+        const baseValue = inputValue * fromFactor;
+        result = baseValue / toFactor;
+        
+        // 计算换算比例
+        const ratio = fromFactor / toFactor;
+        formula = `1 ${fromUnit} = ${formatNumber(ratio)} ${toUnit}`;
+      }
+
+      // 显示结果
+      document.getElementById('output-value').value = formatNumber(result);
+      document.getElementById('result-display').textContent = formatNumber(result);
+      document.getElementById('result-unit').textContent = 
+        `${inputValue} ${data.units[fromUnit].name} = ${formatNumber(result)} ${data.units[toUnit].name}`;
+      document.getElementById('result-formula').textContent = formula;
+
+      // 更新常用换算
+      updateCommonConversions();
+    }
+
+    // 温度换算
+    function convertTemperature(value, from, to) {
+      if (from === to) return value;
+
+      let celsius;
+      // 先转为摄氏度
+      switch (from) {
+        case 'C': celsius = value; break;
+        case 'F': celsius = (value - 32) * 5/9; break;
+        case 'K': celsius = value - 273.15; break;
+      }
+
+      // 再转为目标单位
+      switch (to) {
+        case 'C': return celsius;
+        case 'F': return celsius * 9/5 + 32;
+        case 'K': return celsius + 273.15;
+      }
+    }
+
+    // 获取温度换算公式
+    function getTemperatureFormula(from, to) {
+      if (from === to) return '相同单位';
+      
+      const formulas = {
+        'C-F': '°F = °C × 9/5 + 32',
+        'C-K': 'K = °C + 273.15',
+        'F-C': '°C = (°F - 32) × 5/9',
+        'F-K': 'K = (°F - 32) × 5/9 + 273.15',
+        'K-C': '°C = K - 273.15',
+        'K-F': '°F = (K - 273.15) × 9/5 + 32'
+      };
+      
+      return formulas[`${from}-${to}`] || '';
+    }
+
+    // 更新常用换算参考
+    function updateCommonConversions() {
+      const data = units[currentCategory];
+      const fromUnit = document.getElementById('from-unit').value;
+      const grid = document.getElementById('common-grid');
+      
+      let html = '';
+      const values = [1, 10, 100];
+      
+      values.forEach(val => {
+        for (const [key, unit] of Object.entries(data.units)) {
+          if (key === fromUnit) continue;
+          
+          let result;
+          if (currentCategory === 'temperature') {
+            result = convertTemperature(val, fromUnit, key);
+          } else {
+            const fromFactor = data.units[fromUnit].factor;
+            const toFactor = data.units[key].factor;
+            result = (val * fromFactor) / toFactor;
+          }
+          
+          html += `
+            <div class="conversion-item" onclick="setValueAndUnit(${val}, '${key}')">
+              <div class="conversion-formula">${val} ${data.units[fromUnit].name}</div>
+              <div class="conversion-equals">=</div>
+              <div class="conversion-formula">${formatNumber(result)} ${unit.name}</div>
+            </div>
+          `;
+        }
+      });
+
+      // 只显示前 6 个
+      grid.innerHTML = html.split('</div>').slice(0, 6).join('</div>') + '</div>';
+    }
+
+    // 交换单位
+    function swapUnits() {
+      const fromSelect = document.getElementById('from-unit');
+      const toSelect = document.getElementById('to-unit');
+      const temp = fromSelect.value;
+      fromSelect.value = toSelect.value;
+      toSelect.value = temp;
+      convert();
+    }
+
+    // 设置数值
+    function setValue(val) {
+      document.getElementById('input-value').value = val;
+      convert();
+    }
+
+    // 设置数值和单位
+    function setValueAndUnit(val, unit) {
+      document.getElementById('input-value').value = val;
+      document.getElementById('from-unit').value = unit;
+      convert();
+    }
+
+    // 格式化数字
+    function formatNumber(num) {
+      if (Math.abs(num) < 0.000001 || Math.abs(num) > 1000000000) {
+        return num.toExponential(4);
+      }
+      
+      // 保留合适的小数位数
+      const str = num.toString();
+      if (str.includes('.')) {
+        const decimals = str.split('.')[1];
+        if (decimals && decimals.length > 6) {
+          return parseFloat(num.toFixed(6));
+        }
+      }
+      return num;
+    }
+
+    // 复制结果
+    function copyResult() {
+      const result = document.getElementById('result-display').textContent;
+      const unit = document.getElementById('to-unit');
+      const unitName = unit.options[unit.selectedIndex].text;
+      const text = `${result} ${unitName}`;
+      
+      navigator.clipboard.writeText(text).then(() => {
+        showToast('已复制到剪贴板');
+      });
+    }
+
+    // 显示提示
+    function showToast(message, type = 'success') {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      if (type === 'error') {
+        toast.style.background = '#e74c3c';
+        toast.style.color = '#fff';
+      } else {
+        toast.style.background = 'var(--accent)';
+        toast.style.color = '#000';
+      }
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2000);
+    }
+  </script>
+</body>
+</html>
