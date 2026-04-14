@@ -338,11 +338,11 @@
         </div>
         <div class="stat-card">
           <div class="stat-number" id="char-count">0</div>
-          <div class="stat-label">字符�?/div>
+          <div class="stat-label">字符数</div>
         </div>
         <div class="stat-card">
           <div class="stat-number" id="paragraph-count">0</div>
-          <div class="stat-label">段落�?/div>
+          <div class="stat-label">段落数</div>
         </div>
         <div class="stat-card">
           <div class="stat-number" id="line-count">0</div>
@@ -354,7 +354,7 @@
       <div class="reading-time" id="reading-time" style="display: none;">
         <div class="reading-icon">📖</div>
         <div class="reading-text">
-          预计阅读时间�?span class="reading-highlight" id="reading-value">0 �?/span>
+          预计阅读时间：<span class="reading-highlight" id="reading-value">0 分钟</span>
         </div>
       </div>
 
@@ -364,17 +364,16 @@
           <textarea 
             class="text-input" 
             id="text-input" 
-            placeholder="在此粘贴或输入文�?..
+            placeholder="在此粘贴或输入文字...
 
-支持实时统计�?�?中文字数
-�?英文单词�?�?总字符数（含空格/不含空格�?�?段落数、行�?�?阅读时间估算"
+支持实时统计：中文字数、英文单词、总字符数（含空格/不含空格）、段落数、行数、阅读时间估算"
           ></textarea>
         </div>
 
         <!-- 字数限制 -->
         <div class="limit-section">
-          <label style="white-space: nowrap;">目标字数�?/label>
-          <input type="number" class="limit-input" id="limit-input" placeholder="无限�? min="1">
+          <label style="white-space: nowrap;">目标字数：</label>
+          <input type="number" class="limit-input" id="limit-input" placeholder="无限制" min="1">
           <div class="limit-status" id="limit-status"></div>
         </div>
         <div class="progress-bar" id="progress-bar" style="display: none;">
@@ -467,7 +466,8 @@
       animateNumber('line-count', lineCount);
 
       // 阅读时间
-      const readingTime = Math.ceil(wordCount / 300); // 假设每分�?00�?      const readingTimeEl = document.getElementById('reading-time');
+      const readingTime = Math.ceil(wordCount / 300); // 假设每分钟 300 字
+      const readingTimeEl = document.getElementById('reading-time');
       if (wordCount > 0) {
         readingTimeEl.style.display = 'block';
         let timeText;

@@ -361,15 +361,51 @@
     .hidden {
       display: none !important;
     }
+    /* 返回首页按钮 */
+    .back-to-home {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      width: 50px;
+      height: 50px;
+      background: var(--accent);
+      color: #000;
+      border: none;
+      border-radius: 50%;
+      font-size: 1.5rem;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0, 212, 170, 0.4);
+      transition: all 0.3s;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+    }
+
+    .back-to-home:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(0, 212, 170, 0.5);
+    }
+
+    @media (max-width: 768px) {
+      .back-to-home {
+        bottom: 1rem;
+        right: 1rem;
+        width: 45px;
+        height: 45px;
+        font-size: 1.25rem;
+      }
+    }
   </style>
 </head>
 <body>
-  <!-- 导航�?-->
+  <!-- 导航栏 -->
   <nav>
     <div class="nav-container">
       <a href="../index.html" class="logo">🐙 Octopus</a>
       <div class="nav-links">
-        <a href="qr-generator.html">二维�?/a>
+        <a href="qr-generator.html">二维码</a>
         <a href="password-gen.html">密码生成</a>
         <a href="json-formatter.html">JSON</a>
       </div>
@@ -386,10 +422,10 @@
     <div class="card">
       <!-- 上传区域 -->
       <div class="upload-area" id="upload-area" onclick="document.getElementById('file-input').click()">
-        <div class="upload-icon">🖼�?/div>
+        <div class="upload-icon">🖼️</div>
         <div class="upload-text">点击或拖拽图片到此处</div>
         <div class="upload-hint">支持 JPG、PNG、WebP 格式</div>
-        <div class="upload-formats">单张最�?10MB，支持批量上�?/div>
+        <div class="upload-formats">单张最大 10MB，支持批量上传</div>
         <input type="file" id="file-input" accept="image/*" multiple onchange="handleFiles(this.files)">
       </div>
 
@@ -407,11 +443,11 @@
 
         <div class="image-panel">
           <div class="panel-header">
-            <span class="panel-title">压缩�?/span>
+            <span class="panel-title">压缩后</span>
             <span class="panel-info" id="compressed-info">-</span>
           </div>
           <div class="image-container">
-            <img id="compressed-image" alt="压缩�?>
+            <img id="compressed-image" alt="压缩后">
           </div>
         </div>
       </div>
@@ -436,7 +472,7 @@
           <div class="format-options">
             <div class="format-option">
               <input type="radio" name="format" id="format-original" value="original" checked>
-              <label for="format-original">保持原格�?/label>
+              <label for="format-original">保持原格式</label>
             </div>
             <div class="format-option">
               <input type="radio" name="format" id="format-jpeg" value="jpeg">
@@ -461,7 +497,7 @@
           </div>
           <div class="stat-box">
             <div class="stat-value" id="compressed-size">-</div>
-            <div class="stat-label">压缩�?/div>
+            <div class="stat-label">压缩后</div>
           </div>
           <div class="stat-box">
             <div class="stat-value" id="savings-percent">-</div>
@@ -474,14 +510,14 @@
       <div class="action-section" id="action-section">
         <button class="btn btn-compress" id="compress-btn" onclick="compressImage()" disabled>请先上传图片</button>
         <button class="btn btn-download hidden" id="download-btn" onclick="downloadImage()">下载压缩后的图片</button>
-        <button class="btn btn-secondary hidden" id="new-image-btn" onclick="resetTool()">处理新图�?/button>
+        <button class="btn btn-secondary hidden" id="new-image-btn" onclick="resetTool()">处理新图片</button>
       </div>
 
       <!-- 批量处理列表 -->
       <div class="batch-section hidden" id="batch-section">
         <h3 style="margin-bottom: 1rem;">批量处理列表</h3>
         <div class="batch-list" id="batch-list"></div>
-        <button class="btn" style="width: 100%; margin-top: 1rem;" onclick="compressBatch()">开始批量压�?/button>
+        <button class="btn" style="width: 100%; margin-top: 1rem;" onclick="compressBatch()">开始批量压缩</button>
       </div>
     </div>
   </main>
@@ -494,8 +530,11 @@
       <a href="../privacy.html" style="color: var(--text-secondary); text-decoration: none; margin: 0 0.5rem; font-size: 0.8rem;">隐私政策</a>
       <a href="../terms.html" style="color: var(--text-secondary); text-decoration: none; margin: 0 0.5rem; font-size: 0.8rem;">用户协议</a>
     </div>
-    <p style="font-size: 0.75rem; color: var(--text-secondary); opacity: 0.7;">© 2025 Octopus</p>
+    <p style="font-size: 0.75rem; color: var(--text-secondary); opacity: 0.7;">© 2026 Octopus</p>
   </footer>
+
+  <!-- 返回首页按钮 -->
+  <a href="../index.html" class="back-to-home" title="返回首页">🏠</a>
 
   <!-- 提示 -->
   <div class="toast" id="toast"></div>
@@ -586,7 +625,7 @@
               <div class="batch-name">${file.name}</div>
               <div class="batch-size">${formatFileSize(file.size)}</div>
             </div>
-            <span class="batch-status status-pending" id="status-${index}">待处�?/span>
+            <span class="batch-status status-pending" id="status-${index}">待处理</span>
             <button class="batch-remove" onclick="removeBatchItem(${index})">×</button>
           `;
           list.appendChild(item);
@@ -602,10 +641,10 @@
       document.getElementById('compress-btn').classList.add('hidden');
       document.getElementById('download-btn').classList.add('hidden');
       
-      showToast(`已加�?${batchFiles.length} 张图片`);
+      showToast(`已加载 ${batchFiles.length} 张图片`);
     }
 
-    // 移除批量�?    function removeBatchItem(index) {
+    // 移除批量�?    function removeBatchItem(index) {
       batchFiles.splice(index, 1);
       loadBatchImages();
     }
@@ -666,7 +705,7 @@
       for (let i = 0; i < batchFiles.length; i++) {
         const file = batchFiles[i];
         const statusEl = document.getElementById(`status-${i}`);
-        statusEl.textContent = '处理�?..';
+        statusEl.textContent = '处理中...';
         statusEl.className = 'batch-status status-pending';
 
         await new Promise((resolve) => {
@@ -699,7 +738,7 @@
         });
       }
 
-      showToast('批量压缩完成�?);
+      showToast('批量压缩完成！');
     }
 
     // 下载压缩后的图片
@@ -746,7 +785,7 @@
       showToast('可以上传新图片了');
     }
 
-    // 格式化文件大�?    function formatFileSize(bytes) {
+    // 格式化文件大�?    function formatFileSize(bytes) {
       if (bytes === 0) return '0 B';
       const k = 1024;
       const sizes = ['B', 'KB', 'MB', 'GB'];
